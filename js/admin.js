@@ -138,23 +138,13 @@ async function simpanNilai() {
 
         if (nilai != "") {
 
-            await fetch(API, {
-
-                method: "POST",
-
-                body: JSON.stringify({
-
-                    action: "saveNilai",
-
-                    nis: nis,
-
-                    id_job: job.id_job,
-
-                    nilai: nilai
-
-                })
-
-            });
+    await fetch(
+            API
+            + "?action=saveNilai"
+            + "&nis=" + nis
+            + "&id_job=" + job.id_job
+            + "&nilai=" + nilai
+        );
 
         }
 

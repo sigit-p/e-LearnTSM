@@ -1,16 +1,16 @@
+window.onload = async ()=>{
 
-async function loadRekap(){
+    const kelas = await getKelas();
 
-  let siswa=await getSiswa();
-  let nilai=await getNilai();
+    let html='<option value="">Pilih Kelas</option>';
 
-  //filter kelas
+    kelas.forEach(k=>{
+        html+=`
+        <option value="${k.id_kelas}">
+            ${k.nama_kelas}
+        </option>`;
+    });
 
-  //loop siswa
+    document.getElementById("kelas").innerHTML=html;
 
-  //ambil nilai siswa
-
-  //hitung rata-rata
-
-  //buat baris tabel
 }

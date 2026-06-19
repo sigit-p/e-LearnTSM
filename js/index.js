@@ -30,6 +30,9 @@ async function loadKelas() {
     kelas.innerHTML =
         '<option value="">Pilih Kelas</option>' + html;
 
+    siswa.innerHTML =
+        '<option value="">Pilih Siswa</option>';
+
 }
 
 
@@ -37,11 +40,10 @@ async function loadSiswa() {
 
     konten.innerHTML = "";
 
+    siswa.innerHTML =
+        '<option value="">Pilih Siswa</option>';
+
     if (!kelas.value) {
-
-        siswa.innerHTML =
-            '<option value="">Pilih Siswa</option>';
-
         return;
     }
 
@@ -86,13 +88,11 @@ async function loadData() {
 
     let materi = await resMateri.json();
 
-
     let resJob = await fetch(
         API + "?action=getJobsheet&id_mapel=PKSM&tingkat=XI"
     );
 
     let jobs = await resJob.json();
-
 
     let resNilai = await fetch(
         API + "?action=getNilai&nis=" + nis
@@ -110,22 +110,22 @@ async function loadData() {
 
     let selesai = Object.keys(nilaiMap).length;
 
-    let persen = Math.round(
-        selesai / jobs.length * 100
-    );
+    let persen = jobs.length > 0
+        ? Math.round(selesai / jobs.length * 100)
+        : 0;
 
     let html = `
     <div class="card">
 
         <h2>
-        👤 ${siswa.options[siswa.selectedIndex].text}
+            👤 ${siswa.options[siswa.selectedIndex].text}
         </h2>
 
         <p>NIS : ${nis}</p>
 
         <p>
-        Progress ${selesai}/${jobs.length}
-        (${persen}%)
+            Progress ${selesai}/${jobs.length}
+            (${persen}%)
         </p>
 
         <div class="progress">
@@ -137,16 +137,21 @@ async function loadData() {
     </div>
     `;
 
+
+    // MATERI
+
     html += `
     <div class="card">
 
-    <h2>📚 Materi</h2>
+        <h2>📚 Materi</h2>
     `;
 
-    materi.forEach(item=>{
+    materi.forEach(item => {
 
         html += `
-        <p>✓ ${item.judul_materi}</p>
+        <p>
+            ✓ ${item.judul_materi}
+        </p>
         `;
 
     });
@@ -155,30 +160,48 @@ async function loadData() {
     </div>
     `;
 
+
+    // JOBSHEET
+
     html += `
     <div class="card">
 
-    <h2>📝 Jobsheet</h2>
+        <h2>📝 Jobsheet</h2>
     `;
 
-    jobs.forEach(job=>{
+    jobs.forEach(job => {
 
         let n = nilaiMap[job.id_job];
 
-        if(n){
+        if (n != null) {
 
             html += `
             <p>
-            ✅ ${job.judul_job}
-            : ${n}
+
+                ✅ ${job.judul_job}
+
+                <br>
+
+                <small>${job.media}</small>
+
+                <br>
+
+                Nilai : ${n}
+
             </p>
             `;
 
-        }else{
+        } else {
 
             html += `
             <p>
-            ❌ ${job.judul_job}
+
+                ❌ ${job.judul_job}
+
+                <br>
+
+                <small>${job.media}</small>
+
             </p>
             `;
 

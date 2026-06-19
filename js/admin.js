@@ -2,6 +2,8 @@ const kelas = document.getElementById("kelas");
 const siswa = document.getElementById("siswa");
 const jobsheet = document.getElementById("jobsheet");
 
+let jobs = [];
+
 loadKelas();
 
 kelas.onchange = loadSiswa;
@@ -25,15 +27,22 @@ async function loadKelas() {
 
     });
 
-    kelas.innerHTML = html;
+    kelas.innerHTML =
+        '<option value="">Pilih Kelas</option>' + html;
 
-    loadSiswa();
+    siswa.innerHTML =
+        '<option value="">Pilih Siswa</option>';
+
+    jobsheet.innerHTML="";
 
 }
 
 
 async function loadSiswa() {
-
+ 
+    jobsheet.innerHTML = "";
+    jobs = [];
+    
     let id_kelas = kelas.value;
 
     let res = await fetch(
@@ -54,20 +63,26 @@ async function loadSiswa() {
 
     });
 
-    siswa.innerHTML = html;
-    
-    loadJobsheet();
+    siswa.innerHTML =
+        '<option value="">Pilih Siswa</option>' + html;
+
+    jobsheet.innerHTML="";
 }
 
 async function loadJobsheet(){
 
     let nis = siswa.value;
 
+    if(!nis){
+        jobsheet.innerHTML="";
+        return;
+    }
+
     let resJob = await fetch(
         API+"?action=getJobsheet&id_mapel=PKSM&tingkat=XI"
     );
 
-    let jobs = await resJob.json();
+    jobs = await resJob.json();
 
 
     let resNilai = await fetch(
@@ -105,6 +120,8 @@ async function loadJobsheet(){
             type="number"
             id="${job.id_job}"
             value="${n}"
+            min="0"
+            max="100"
         >
 
         </div>
@@ -125,12 +142,6 @@ async function loadJobsheet(){
 async function simpanNilai() {
 
     let nis = siswa.value;
-
-    let resJob = await fetch(
-        API + "?action=getJobsheet&id_mapel=PKSM&tingkat=XI"
-    );
-
-    let jobs = await resJob.json();
 
     for (let job of jobs) {
 

@@ -100,13 +100,6 @@ async function loadJobsheet(){
 
     let html = "";
 
-    html += `
-    <div class="card">
-    <h2>${siswa.options[siswa.selectedIndex].text}</h2>
-    <p>NIS : ${nis}</p>
-    </div>
-    `;
-
     let nilaiMap = {};
     nilai.forEach(item=>{
     nilaiMap[item.id_job] = item.nilai;

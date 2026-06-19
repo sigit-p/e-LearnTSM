@@ -122,4 +122,46 @@ async function loadJobsheet(){
 
 }
 
+async function simpanNilai() {
+
+    let nis = siswa.value;
+
+    let resJob = await fetch(
+        API + "?action=getJobsheet&id_mapel=PKSM&tingkat=XI"
+    );
+
+    let jobs = await resJob.json();
+
+    for (let job of jobs) {
+
+        let nilai = document.getElementById(job.id_job).value;
+
+        if (nilai != "") {
+
+            await fetch(API, {
+
+                method: "POST",
+
+                body: JSON.stringify({
+
+                    action: "saveNilai",
+
+                    nis: nis,
+
+                    id_job: job.id_job,
+
+                    nilai: nilai
+
+                })
+
+            });
+
+        }
+
+    }
+
+    alert("Nilai berhasil disimpan");
+
+}
+
 

@@ -1,17 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>e-Nilai Praktik Mupa</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+
 <div class="container">
 
     <div class="card">
 
         <h1>e-Nilai Praktik Mupa</h1>
 
+        <h3>Informasi Siswa</h3>
+
         <label>Kelas</label>
-        <select id="kelas"></select>
+        <select id="kelas">
+            <option>Pilih Kelas</option>
+        </select>
 
         <label>Siswa</label>
-        <select id="siswa"></select>
+        <select id="siswa">
+            <option>Pilih Siswa</option>
+        </select>
 
     </div>
 
     <div id="konten"></div>
 
 </div>
+
+<script src="js/api.js"></script>
+<script src="js/index.js"></script>
+
+</body>
+</html>

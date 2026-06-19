@@ -1,3 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rekap Nilai</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    max-width:1000px;
+    margin:auto;
+    padding:20px;
+    background:#f5f5f5;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,.1);
+}
+
+select,button{
+    padding:10px;
+    margin:5px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+th{
+    background:#4CAF50;
+    color:white;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+}
+
+tr:nth-child(even){
+    background:#fafafa;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="card">
+
+<h2>📊 Rekap Nilai</h2>
+
 <select id="kelas"></select>
 
 <button onclick="loadRekap()">
@@ -5,15 +66,27 @@ Tampilkan
 </button>
 
 <table>
+
 <thead>
 <tr>
 <th>No</th>
 <th>NIS</th>
 <th>Nama</th>
-<th>Selesai</th>
+<th>Job Selesai</th>
 <th>Rata-rata</th>
 </tr>
 </thead>
 
-<tbody id="tbodyRekap"></tbody>
+<tbody id="tbodyRekap">
+
+</tbody>
+
 </table>
+
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/rekap.js"></script>
+
+</body>
+</html>

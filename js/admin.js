@@ -110,21 +110,24 @@ async function loadJobsheet(){
     ? Math.round(selesai / jobs.length * 100)
     : 0;
 
-    html += `
+html += `
 <div class="card">
 
 <h2>
 👤 ${siswa.options[siswa.selectedIndex].text}
 </h2>
 
-<p>
-NIS : ${nis}
-</p>
+<p>NIS : ${nis}</p>
 
 <p>
-Progress : ${selesai}/${jobs.length}
-(${persen}%)
+Progress ${selesai}/${jobs.length} (${persen}%)
 </p>
+
+<div class="progress">
+    <div class="progress-bar"
+         style="width:${persen}%">
+    </div>
+</div>
 
 </div>
 `;
@@ -133,25 +136,24 @@ Progress : ${selesai}/${jobs.length}
 
     let n = nilaiMap[job.id_job] || "";
 
-        html += `
-        <div class="card">
+html += `
+<div class="card">
 
-        <h3>${job.judul_job}</h3>
+<h3>${job.judul_job}</h3>
 
-        <small>${job.media}</small>
+<p>${job.media}</p>
 
-        <br><br>
+<label>Nilai</label>
 
-        <input
-            type="number"
-            id="${job.id_job}"
-            value="${n}"
-            min="0"
-            max="100"
-        >
+<input
+type="number"
+id="${job.id_job}"
+value="${n}"
+min="0"
+max="100">
 
-        </div>
-        `;
+</div>
+`;
 
     });
 

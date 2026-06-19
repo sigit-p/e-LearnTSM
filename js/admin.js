@@ -39,9 +39,17 @@ async function loadKelas() {
 
 
 async function loadSiswa() {
- 
-    jobsheet.innerHTML = "";
-    jobs = [];
+     
+    if(!kelas.value){
+
+    siswa.innerHTML =
+    '<option value="">Pilih Siswa</option>';
+
+    jobsheet.innerHTML="";
+    jobs=[];
+
+    return;
+    }
     
     let id_kelas = kelas.value;
 
@@ -93,19 +101,21 @@ async function loadJobsheet(){
 
     let html = "";
 
+    html += `
+    <div class="card">
+    <h2>${siswa.options[siswa.selectedIndex].text}</h2>
+    <p>NIS : ${nis}</p>
+    </div>
+    `;
+
+    let nilaiMap = {};
+    nilai.forEach(item=>{
+    nilaiMap[item.id_job] = item.nilai;
+    });
+    
     jobs.forEach(job=>{
 
-        let n = "";
-
-        nilai.forEach(item=>{
-
-            if(item.id_job==job.id_job){
-
-                n = item.nilai;
-
-            }
-
-        });
+    let n = nilaiMap[job.id_job] || "";
 
         html += `
         <div class="card">
@@ -130,8 +140,10 @@ async function loadJobsheet(){
     });
 
     html += `
-    <button onclick="simpanNilai()">
-        💾 Simpan
+    <button
+        id="btnSimpan"
+        onclick="simpanNilai()">
+        💾 Simpan Nilai
     </button>
     `;
 
@@ -141,28 +153,49 @@ async function loadJobsheet(){
 
 async function simpanNilai() {
 
-    let nis = siswa.value;
+    let btn = document.getElementById("btnSimpan");
 
-    for (let job of jobs) {
+    try {
 
-        let nilai = document.getElementById(job.id_job).value;
+        btn.disabled = true;
+        btn.innerHTML = "Menyimpan...";
 
-        if (nilai != "") {
+        let nis = siswa.value;
 
-    await fetch(
-            API
-            + "?action=saveNilai"
-            + "&nis=" + nis
-            + "&id_job=" + job.id_job
-            + "&nilai=" + nilai
-        );
+        for (let job of jobs) {
+
+            let nilai = document.getElementById(job.id_job).value;
+
+            if (nilai != "") {
+
+                nilai = Number(nilai);
+
+                if (nilai < 0) nilai = 0;
+                if (nilai > 100) nilai = 100;
+
+                await fetch(
+                    API
+                    + "?action=saveNilai"
+                    + "&nis=" + nis
+                    + "&id_job=" + job.id_job
+                    + "&nilai=" + nilai
+                );
+
+            }
 
         }
 
+        alert("Nilai berhasil disimpan");
+
+    } catch(err){
+
+        alert("Terjadi kesalahan");
+
+    } finally {
+
+        btn.disabled = false;
+        btn.innerHTML = "💾 Simpan Nilai";
+
     }
 
-    alert("Nilai berhasil disimpan");
-
 }
-
-

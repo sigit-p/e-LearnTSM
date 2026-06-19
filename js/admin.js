@@ -39,17 +39,16 @@ async function loadKelas() {
 
 
 async function loadSiswa() {
-     
-    if(!kelas.value){
+    jobs = [];
+    jobsheet.innerHTML = "";
+    
+if(!kelas.value){
 
     siswa.innerHTML =
     '<option value="">Pilih Siswa</option>';
 
-    jobsheet.innerHTML="";
-    jobs=[];
-
     return;
-    }
+}
     
     let id_kelas = kelas.value;
 
@@ -112,6 +111,28 @@ async function loadJobsheet(){
     nilai.forEach(item=>{
     nilaiMap[item.id_job] = item.nilai;
     });
+
+    let selesai = Object.keys(nilaiMap).length;
+    let persen = Math.round(selesai / jobs.length * 100);
+
+    html += `
+<div class="card">
+
+<h2>
+👤 ${siswa.options[siswa.selectedIndex].text}
+</h2>
+
+<p>
+NIS : ${nis}
+</p>
+
+<p>
+Progress : ${selesai}/${jobs.length}
+(${persen}%)
+</p>
+
+</div>
+`;
     
     jobs.forEach(job=>{
 
@@ -153,6 +174,10 @@ async function loadJobsheet(){
 
 async function simpanNilai() {
 
+    if (!siswa.value) {
+    alert("Pilih siswa terlebih dahulu");
+    return;
+}
     let btn = document.getElementById("btnSimpan");
 
     try {
@@ -173,7 +198,7 @@ async function simpanNilai() {
                 if (nilai < 0) nilai = 0;
                 if (nilai > 100) nilai = 100;
 
-                await fetch(
+                let res = await fetch(
                     API
                     + "?action=saveNilai"
                     + "&nis=" + nis
@@ -181,14 +206,21 @@ async function simpanNilai() {
                     + "&nilai=" + nilai
                 );
 
+                let hasil = await res.json();
+
+                if (!hasil.status) {
+                    throw new Error("Gagal menyimpan");
+                }
+
             }
 
         }
 
         alert("Nilai berhasil disimpan");
+        await loadJobsheet();
+    } catch (err) {
 
-    } catch(err){
-
+        console.error(err);
         alert("Terjadi kesalahan");
 
     } finally {

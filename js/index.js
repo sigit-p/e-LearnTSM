@@ -5,7 +5,11 @@ const konten = document.getElementById("konten");
 loadKelas();
 
 kelas.onchange = loadSiswa;
-siswa.onchange = loadData;
+siswa.onchange = function(){
+
+    konten.innerHTML = "";
+
+}
 
 async function loadKelas() {
 

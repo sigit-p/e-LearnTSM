@@ -1,23 +1,57 @@
-async function loadKelas(){
+const kelas = document.getElementById("kelas");
+const siswa = document.getElementById("siswa");
+const jobsheet = document.getElementById("jobsheet");
 
-  let res = await fetch(API+"?action=getKelas");
+loadKelas();
 
-  let data = await res.json();
+kelas.onchange = loadSiswa;
 
-  let html="";
+async function loadKelas() {
 
-  data.forEach(k=>{
+    let res = await fetch(API + "?action=getKelas");
+    let data = await res.json();
 
-    html+=`
-    <option value="${k.id_kelas}">
-      ${k.nama_kelas}
-    </option>
-    `;
+    let html = "";
 
-  });
+    data.forEach(item => {
 
-  kelas.innerHTML=html;
+        html += `
+        <option value="${item.id_kelas}">
+            ${item.nama_kelas}
+        </option>
+        `;
+
+    });
+
+    kelas.innerHTML = html;
+
+    loadSiswa();
 
 }
 
-loadKelas();
+
+async function loadSiswa() {
+
+    let id_kelas = kelas.value;
+
+    let res = await fetch(
+        API + "?action=getSiswa&id_kelas=" + id_kelas
+    );
+
+    let data = await res.json();
+
+    let html = "";
+
+    data.forEach(item => {
+
+        html += `
+        <option value="${item.nis}">
+            ${item.nama}
+        </option>
+        `;
+
+    });
+
+    siswa.innerHTML = html;
+
+}

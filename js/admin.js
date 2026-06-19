@@ -106,7 +106,9 @@ async function loadJobsheet(){
     });
 
     let selesai = Object.keys(nilaiMap).length;
-    let persen = Math.round(selesai / jobs.length * 100);
+    let persen = jobs.length > 0
+    ? Math.round(selesai / jobs.length * 100)
+    : 0;
 
     html += `
 <div class="card">

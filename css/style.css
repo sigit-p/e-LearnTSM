@@ -99,3 +99,18 @@ input[type=number]:focus{
 #btnSimpan:hover{
     background:#43a047;
 }
+
+.progress{
+    width:100%;
+    height:20px;
+    background:#e0e0e0;
+    border-radius:20px;
+    overflow:hidden;
+    margin-top:10px;
+}
+
+.progress-bar{
+    height:100%;
+    background:#4caf50;
+    border-radius:20px;
+}

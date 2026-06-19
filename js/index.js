@@ -5,27 +5,13 @@ const konten = document.getElementById("konten");
 loadKelas();
 
 kelas.onchange = loadSiswa;
-siswa.onchange = function(){
 
+siswa.onchange = function () {
     konten.innerHTML = "";
+};
 
-}
 
-async function loadData(){
-
-    if(!kelas.value){
-
-        alert("Pilih kelas terlebih dahulu");
-        return;
-
-    }
-
-    if(!siswa.value){
-
-        alert("Pilih siswa terlebih dahulu");
-        return;
-
-    }
+async function loadKelas() {
 
     let res = await fetch(
         API + "?action=getKelas"
@@ -91,14 +77,21 @@ async function loadSiswa() {
 
 async function loadData() {
 
-    let nis = siswa.value;
+    if (!kelas.value) {
 
-    if (!nis) {
-
-        konten.innerHTML = "";
+        alert("Pilih kelas terlebih dahulu");
         return;
 
     }
+
+    if (!siswa.value) {
+
+        alert("Pilih siswa terlebih dahulu");
+        return;
+
+    }
+
+    let nis = siswa.value;
 
     let resMateri = await fetch(
         API + "?action=getMateri&id_mapel=PKSM"
@@ -133,6 +126,7 @@ async function loadData() {
         : 0;
 
     let html = `
+
     <div class="card">
 
         <h2>
@@ -147,9 +141,12 @@ async function loadData() {
         </p>
 
         <div class="progress">
+
             <div class="progress-bar"
                  style="width:${persen}%">
+
             </div>
+
         </div>
 
     </div>

@@ -11,7 +11,21 @@ siswa.onchange = function(){
 
 }
 
-async function loadKelas() {
+async function loadData(){
+
+    if(!kelas.value){
+
+        alert("Pilih kelas terlebih dahulu");
+        return;
+
+    }
+
+    if(!siswa.value){
+
+        alert("Pilih siswa terlebih dahulu");
+        return;
+
+    }
 
     let res = await fetch(
         API + "?action=getKelas"

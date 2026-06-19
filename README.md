@@ -82,3 +82,4 @@ key | value
 
 SMK Muhammadiyah Pakem
 Teknik Sepeda Motor
+#sigitprabowo@2026

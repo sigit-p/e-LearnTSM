@@ -170,3 +170,12 @@ input[type=number]:focus{
     cursor:pointer;
     font-size:20px;
 }
+
+#cari{
+    width:100%;
+    padding:14px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    margin-top:15px;
+    font-size:16px;
+}

@@ -151,7 +151,7 @@ async function loadRekap() {
 
 }
 
-async function detailSiswa(nis){
+async function detailSiswa(nis,nama){
 
     modal.style.display = "block";
 
@@ -175,8 +175,51 @@ async function detailSiswa(nis){
 
     });
 
+    let selesai = nilai.length;
+
+    let total = 0;
+
+    nilai.forEach(item=>{
+
+        total += Number(item.nilai);
+
+    });
+
+    let rata = selesai > 0
+        ? Math.round(total / selesai)
+        : 0;
+
+    let persen = jobs.length > 0
+        ? Math.round(selesai / jobs.length * 100)
+        : 0;
+
     let html = `
-    <h2>📋 Detail Nilai</h2>
+
+    <h2>
+        👤 ${nama}
+    </h2>
+
+    <p>
+        NIS : ${nis}
+    </p>
+
+    <p>
+        Progress :
+        ${selesai}/${jobs.length}
+        (${persen}%)
+    </p>
+
+    <p>
+        Rata-rata :
+        ${rata}
+    </p>
+
+    <hr>
+
+    <h3>
+        📋 Detail Nilai
+    </h3>
+
     `;
 
     jobs.forEach(job=>{
@@ -187,12 +230,19 @@ async function detailSiswa(nis){
 
             html += `
             <p>
-            ✅ ${job.judul_job}
 
-            <br>
+                ✅ ${job.judul_job}
 
-            Nilai : ${n}
+                <br>
+
+                <small>${job.media}</small>
+
+                <br>
+
+                Nilai : ${n}
+
             </p>
+
             <hr>
             `;
 
@@ -200,8 +250,15 @@ async function detailSiswa(nis){
 
             html += `
             <p>
-            ❌ ${job.judul_job}
+
+                ❌ ${job.judul_job}
+
+                <br>
+
+                <small>${job.media}</small>
+
             </p>
+
             <hr>
             `;
 

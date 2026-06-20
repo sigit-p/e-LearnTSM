@@ -1,5 +1,7 @@
 const kelas = document.getElementById("kelas");
 const tbodyRekap = document.getElementById("tbodyRekap");
+const modal = document.getElementById("modal");
+const detail = document.getElementById("detailSiswa");
 
 loadKelas();
 

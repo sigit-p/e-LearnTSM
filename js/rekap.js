@@ -120,7 +120,7 @@ async function loadRekap() {
             <td>
 
                 <button
-                    onclick="detailSiswa('${s.nis}')">
+                    onclick="detailSiswa('${s.nis}','${s.nama}')">
 
                     👁
 

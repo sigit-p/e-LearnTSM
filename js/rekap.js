@@ -1,5 +1,5 @@
 const kelas = document.getElementById("kelas");
-const rekap = document.getElementById("rekap");
+const tbodyRekap = document.getElementById("tbodyRekap");
 
 loadKelas();
 
@@ -38,7 +38,13 @@ async function loadRekap() {
 
     }
 
-    rekap.innerHTML = "<div class='card'>Memuat data...</div>";
+    tbodyRekap.innerHTML = `
+    <tr>
+        <td colspan="5">
+            Memuat data...
+        </td>
+    </tr>
+    `;
 
     // daftar siswa
     let resSiswa = await fetch(
@@ -58,6 +64,8 @@ async function loadRekap() {
     let jumlahJob = jobs.length;
 
     let html = "";
+
+    let no = 1;
 
     for (let s of siswa) {
 
@@ -86,43 +94,48 @@ async function loadRekap() {
             : 0;
 
         html += `
-        <div class="card">
+        <tr>
 
-            <h2>
-                👤 ${s.nama}
-            </h2>
+            <td>
+                ${no}
+            </td>
 
-            <p>
-                NIS : ${s.nis}
-            </p>
+            <td>
+                ${s.nama}
+            </td>
 
-            <p>
-                Progress :
+            <td>
                 ${selesai}/${jumlahJob}
                 (${persen}%)
-            </p>
+            </td>
 
-            <div class="progress">
+            <td>
+                ${rata}
+            </td>
 
-                <div
-                    class="progress-bar"
-                    style="width:${persen}%">
+            <td>
+                <button
+                    onclick="detailSiswa('${s.nis}')">
+                    👁
+                </button>
+            </td>
 
-                </div>
-
-            </div>
-
-            <br>
-
-            <h3>
-                Rata-rata : ${rata}
-            </h3>
-
-        </div>
+        </tr>
         `;
+
+        no++;
 
     }
 
-    rekap.innerHTML = html;
+    tbodyRekap.innerHTML = html;
+
+}
+
+
+function detailSiswa(nis){
+
+    alert(
+        "Detail siswa : " + nis
+    );
 
 }

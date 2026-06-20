@@ -3,31 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Rekap Nilai</title>
 
 <link rel="stylesheet" href="css/style.css">
 
 <style>
-
-body{
-    font-family:Arial,sans-serif;
-    max-width:1000px;
-    margin:auto;
-    padding:20px;
-    background:#f5f5f5;
-}
-
-.card{
-    background:white;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 2px 10px rgba(0,0,0,.1);
-}
-
-select,button{
-    padding:10px;
-    margin:5px;
-}
 
 table{
     width:100%;
@@ -55,33 +36,54 @@ tr:nth-child(even){
 </head>
 <body>
 
-<div class="card">
+<div class="container">
 
-<h2>📊 Rekap Nilai</h2>
+    <div class="card">
 
-<select id="kelas"></select>
+        <h1>📊 Rekap Nilai</h1>
 
-<button onclick="loadRekap()">
-Tampilkan
-</button>
+        <label>Kelas</label>
 
-<table>
+        <select id="kelas">
+            <option>Pilih Kelas</option>
+        </select>
 
-<thead>
-<tr>
-<th>No</th>
-<th>NIS</th>
-<th>Nama</th>
-<th>Job Selesai</th>
-<th>Rata-rata</th>
-</tr>
-</thead>
+        <button
+            id="btnCari"
+            onclick="loadRekap()">
+            🔎 Tampilkan Rekap
+        </button>
 
-<tbody id="tbodyRekap">
+    </div>
 
-</tbody>
 
-</table>
+    <div class="card">
+
+        <div style="overflow-x:auto">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Progress</th>
+                        <th>Rata-rata</th>
+                        <th>Detail</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="tbodyRekap">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
 
 </div>
 

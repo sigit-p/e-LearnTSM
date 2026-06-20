@@ -11,13 +11,16 @@
 <style>
 
 .menu{
-    display:block;
     text-decoration:none;
     color:#333;
 }
 
-.menu h2{
-    margin:0;
+.menu .card{
+    transition:.2s;
+}
+
+.menu .card:hover{
+    transform:translateY(-3px);
 }
 
 </style>
@@ -27,69 +30,65 @@
 
 <div class="container">
 
-    <div class="card">
+<div class="card">
 
-        <h1>e-Nilai Praktik Mupa</h1>
+<h1>e-Nilai Praktik Mupa</h1>
 
-        <p>
-            SMK Muhammadiyah Pakem
-        </p>
+<p>
+SMK Muhammadiyah Pakem
+</p>
 
-    </div>
+<p>
+Versi 0.3
+</p>
 
-
-    <a href="index.html" class="menu">
-
-        <div class="card">
-
-            <h2>📚 Halaman Siswa</h2>
-
-            <p>
-                Lihat materi, jobsheet dan nilai siswa
-            </p>
-
-        </div>
-
-    </a>
+</div>
 
 
-    <a href="admin.html" class="menu">
+<a class="menu" href="index.html">
 
-        <div class="card">
+<div class="card">
 
-            <h2>📝 Input Nilai</h2>
+<h2>📚 Halaman Siswa</h2>
 
-            <p>
-                Input dan edit nilai siswa
-            </p>
+<p>
+Materi, jobsheet, dan nilai siswa
+</p>
 
-        </div>
+</div>
 
-    </a>
-
-
-    <a href="rekap.html" class="menu">
-
-        <div class="card">
-
-            <h2>📊 Rekap Nilai</h2>
-
-            <p>
-                Rekap nilai dan progress siswa
-            </p>
-
-        </div>
-
-    </a>
+</a>
 
 
-    <div class="card">
+<a class="menu" href="admin.html">
 
-        <p>
-            Versi 0.3
-        </p>
+<div class="card">
 
-    </div>
+<h2>📝 Input Nilai</h2>
+
+<p>
+Input dan edit nilai praktik
+</p>
+
+</div>
+
+</a>
+
+
+<a class="menu" href="rekap.html">
+
+<div class="card">
+
+<h2>📊 Rekap Nilai</h2>
+
+<p>
+Progress dan rata-rata nilai siswa
+</p>
+
+</div>
+
+</a>
+
 
 </div>
 

@@ -151,10 +151,70 @@ async function loadRekap() {
 
 }
 
-function detailSiswa(nis){
+async function detailSiswa(nis){
 
-    alert(
-        "Detail siswa : " + nis
+    modal.style.display = "block";
+
+    let resNilai = await fetch(
+        API + "?action=getNilai&nis=" + nis
     );
+
+    let nilai = await resNilai.json();
+
+    let resJob = await fetch(
+        API + "?action=getJobsheet&id_mapel=PKSM&tingkat=XI"
+    );
+
+    let jobs = await resJob.json();
+
+    let nilaiMap = {};
+
+    nilai.forEach(item=>{
+
+        nilaiMap[item.id_job] = item.nilai;
+
+    });
+
+    let html = `
+    <h2>📋 Detail Nilai</h2>
+    `;
+
+    jobs.forEach(job=>{
+
+        let n = nilaiMap[job.id_job];
+
+        if(n != null){
+
+            html += `
+            <p>
+            ✅ ${job.judul_job}
+
+            <br>
+
+            Nilai : ${n}
+            </p>
+            <hr>
+            `;
+
+        }else{
+
+            html += `
+            <p>
+            ❌ ${job.judul_job}
+            </p>
+            <hr>
+            `;
+
+        }
+
+    });
+
+    detail.innerHTML = html;
+
+}
+
+function tutupModal(){
+
+    modal.style.display = "none";
 
 }

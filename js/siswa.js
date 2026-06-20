@@ -77,6 +77,13 @@ async function loadSiswa() {
 
 async function loadData() {
 
+    let btn = document.getElementById("btnCari");
+
+    btn.disabled = true;
+    btn.innerHTML = "Memuat...";
+
+    try{
+
     if (!kelas.value) {
 
         alert("Pilih kelas terlebih dahulu");
@@ -229,5 +236,12 @@ async function loadData() {
     `;
 
     konten.innerHTML = html;
+
+  } finally {
+
+        btn.disabled = false;
+        btn.innerHTML = "🔎 Tampilkan Data";
+
+    }
 
 }

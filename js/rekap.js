@@ -53,7 +53,6 @@ async function loadRekap() {
 
     let siswa = await resSiswa.json();
 
-
     // daftar jobsheet
     let resJob = await fetch(
         API + "?action=getJobsheet&id_mapel=PKSM&tingkat=XI"
@@ -63,17 +62,22 @@ async function loadRekap() {
 
     let jumlahJob = jobs.length;
 
-    let html = "";
+    // seluruh nilai
+    let resNilai = await fetch(
+        API + "?action=getNilaiSemua"
+    );
 
+    let semuaNilai = await resNilai.json();
+
+    let html = "";
     let no = 1;
 
     for (let s of siswa) {
 
-        let resNilai = await fetch(
-            API + "?action=getNilai&nis=" + s.nis
+        // nilai siswa ini saja
+        let nilai = semuaNilai.filter(
+            item => item.nis == s.nis
         );
-
-        let nilai = await resNilai.json();
 
         let selesai = nilai.length;
 
@@ -96,9 +100,7 @@ async function loadRekap() {
         html += `
         <tr>
 
-            <td>
-                ${no}
-            </td>
+            <td>${no}</td>
 
             <td>
                 ${s.nama}
@@ -114,10 +116,14 @@ async function loadRekap() {
             </td>
 
             <td>
+
                 <button
                     onclick="detailSiswa('${s.nis}')">
+
                     👁
+
                 </button>
+
             </td>
 
         </tr>
@@ -127,10 +133,21 @@ async function loadRekap() {
 
     }
 
+    if (html == "") {
+
+        html = `
+        <tr>
+            <td colspan="5">
+                Tidak ada data
+            </td>
+        </tr>
+        `;
+
+    }
+
     tbodyRekap.innerHTML = html;
 
 }
-
 
 function detailSiswa(nis){
 

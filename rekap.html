@@ -54,19 +54,17 @@ tr:nth-child(even){
             onclick="loadRekap()">
             🔎 Tampilkan Rekap
         </button>
-
+<input
+id="cari"
+type="text"
+placeholder="🔍 Cari siswa..."
+onkeyup="filterTabel()">
     </div>
 
 
     <div class="card">
 
         <div style="overflow-x:auto">
-<label>Cari Siswa</label>
-
-<input
-type="text"
-id="cari"
-placeholder="Nama siswa...">
             <table>
 
                 <thead>

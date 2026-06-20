@@ -126,3 +126,31 @@ input[type=number]:focus{
     font-weight:bold;
     margin-top:10px;
 }
+
+.modal{
+    display:none;
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.5);
+    z-index:999;
+}
+
+.modal-card{
+    background:white;
+    width:90%;
+    max-width:500px;
+    margin:50px auto;
+    padding:20px;
+    border-radius:15px;
+    max-height:80vh;
+    overflow:auto;
+}
+
+.close{
+    float:right;
+    cursor:pointer;
+    font-size:20px;
+}

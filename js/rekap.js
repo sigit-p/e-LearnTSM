@@ -275,3 +275,31 @@ function tutupModal(){
     modal.style.display = "none";
 
 }
+
+function filterTabel(){
+
+    let cari = document
+        .getElementById("cari")
+        .value
+        .toUpperCase();
+
+    let tr = tbodyRekap.getElementsByTagName("tr");
+
+    for(let i=0;i<tr.length;i++){
+
+        let td = tr[i].getElementsByTagName("td")[1];
+
+        if(td){
+
+            let txt = td.textContent || td.innerText;
+
+            tr[i].style.display =
+                txt.toUpperCase().indexOf(cari) > -1
+                ? ""
+                : "none";
+
+        }
+
+    }
+
+}

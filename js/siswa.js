@@ -1,25 +1,74 @@
-const kelas = document.getElementById("kelas");
-const siswa = document.getElementById("siswa");
-const konten = document.getElementById("konten");
+let semuaSiswa = [];
+let semuaNilai = [];
+let semuaJobs = [];
 
-loadKelas();
+async function halamanNilai() {
 
-kelas.onchange = loadSiswa;
+    konten.innerHTML = `
 
-siswa.onchange = function () {
-    konten.innerHTML = "";
-};
+    <div class="header">
+        <h1>📖 Cek Nilai</h1>
+        <small>Lihat hasil penilaian siswa</small>
+    </div>
+
+    <div class="card">
+
+        <label>Kelas</label>
+
+        <select id="kelas"></select>
+
+        <input
+            type="text"
+            id="cariSiswa"
+            class="search-input"
+            placeholder="🔍 Cari siswa...">
+
+    </div>
+
+    <div id="listSiswa"></div>
+
+    <div id="modal" class="modal">
+
+        <div class="modal-content">
+
+            <span class="close"
+                onclick="closeModal()">
+
+                ×
+
+            </span>
+
+            <div id="modalBody">
+
+            </div>
+
+        </div>
+
+    </div>
+
+    `;
+
+    await loadKelas();
+
+    document.getElementById("kelas")
+        .onchange = loadDaftarSiswa;
+
+    document.getElementById("cariSiswa")
+        .addEventListener(
+            "input",
+            filterSiswa
+        );
+
+}
+
 
 
 async function loadKelas() {
 
-    let res = await fetch(
-        API + "?action=getKelas"
-    );
+    let data = await getKelas();
 
-    let data = await res.json();
-
-    let html = "";
+    let html =
+        '<option value="">Pilih Kelas</option>';
 
     data.forEach(item => {
 
@@ -31,217 +80,302 @@ async function loadKelas() {
 
     });
 
-    kelas.innerHTML =
-        '<option value="">Pilih Kelas</option>' + html;
-
-    siswa.innerHTML =
-        '<option value="">Pilih Siswa</option>';
+    document.getElementById("kelas")
+        .innerHTML = html;
 
 }
 
 
-async function loadSiswa() {
+async function loadDaftarSiswa() {
+console.log("load siswa");
+    let id_kelas =
+        document.getElementById("kelas").value;
 
-    konten.innerHTML = "";
+    if (!id_kelas) {
 
-    siswa.innerHTML =
-        '<option value="">Pilih Siswa</option>';
+        listSiswa.innerHTML = "";
 
-    if (!kelas.value) {
         return;
+
     }
 
-    let res = await fetch(
-        API + "?action=getSiswa&id_kelas=" + kelas.value
+    listSiswa.innerHTML = "Memuat...";
+
+    semuaSiswa =
+        await getSiswa(id_kelas);
+
+    semuaNilai =
+        await getNilaiSemua();
+
+    semuaJobs =
+        await getJobsheet(
+            "PKSM",
+            "XI"
+        );
+
+    tampilDaftarSiswa(
+        semuaSiswa
     );
 
-    let data = await res.json();
+}
+
+
+
+function tampilDaftarSiswa(data) {
 
     let html = "";
 
-    data.forEach(item => {
+    data.forEach(s => {
+
+        let nilai =
+            semuaNilai.filter(
+                n => n.nis == s.nis
+            );
+
+        let selesai = nilai.length;
+
+        let persen =
+            semuaJobs.length > 0
+            ? Math.round(
+                selesai /
+                semuaJobs.length *
+                100
+            )
+            : 0;
+
+        let total = 0;
+
+        nilai.forEach(item => {
+
+            total += Number(item.nilai);
+
+        });
+
+        let rata =
+            selesai > 0
+            ? Math.round(total / selesai)
+            : 0;
 
         html += `
-        <option value="${item.nis}">
-            ${item.nama}
-        </option>
+
+        <div class="siswa-card">
+
+            <div>
+
+                <div class="nama-siswa">
+
+                    👤 ${s.nama}
+
+                </div>
+
+                <small>${s.nis}</small>
+
+                <div class="progress-mini">
+
+                    <div class="progress-fill"
+                        style="width:${persen}%">
+
+                    </div>
+
+                </div>
+
+                <small>
+
+                    Progress ${persen}%
+
+                    <br>
+
+                    ⭐ Rata-rata ${rata}
+
+                </small>
+
+            </div>
+
+            <button class="btn-detail"
+                onclick="showDetail('${s.nis}')">
+
+                Detail
+
+            </button>
+
+        </div>
+
         `;
 
     });
 
-    siswa.innerHTML =
-        '<option value="">Pilih Siswa</option>' + html;
+    listSiswa.innerHTML = html;
 
 }
 
 
-async function loadData() {
 
-    let btn = document.getElementById("btnCari");
+function filterSiswa() {
 
-    btn.disabled = true;
-    btn.innerHTML = "Memuat...";
+    let keyword =
+        document
+        .getElementById("cariSiswa")
+        .value
+        .toLowerCase();
 
-    try{
+    let hasil =
+        semuaSiswa.filter(
+            s =>
+            s.nama
+            .toLowerCase()
+            .includes(keyword)
+        );
 
-    if (!kelas.value) {
-
-        alert("Pilih kelas terlebih dahulu");
-        return;
-
-    }
-
-    if (!siswa.value) {
-
-        alert("Pilih siswa terlebih dahulu");
-        return;
-
-    }
-
-    let nis = siswa.value;
-
-    let resMateri = await fetch(
-        API + "?action=getMateri&id_mapel=PKSM"
+    tampilDaftarSiswa(
+        hasil
     );
 
-    let materi = await resMateri.json();
+}
 
-    let resJob = await fetch(
-        API + "?action=getJobsheet&id_mapel=PKSM&tingkat=XI"
-    );
 
-    let jobs = await resJob.json();
 
-    let resNilai = await fetch(
-        API + "?action=getNilai&nis=" + nis
-    );
+function showDetail(nis) {
 
-    let nilai = await resNilai.json();
+    let siswa =
+        semuaSiswa.find(
+            s => s.nis == nis
+        );
+
+    let nilai =
+        semuaNilai.filter(
+            n => n.nis == nis
+        );
 
     let nilaiMap = {};
 
     nilai.forEach(item => {
 
-        nilaiMap[item.id_job] = item.nilai;
+        nilaiMap[item.id_job] =
+            item.nilai;
 
     });
 
-    let selesai = Object.keys(nilaiMap).length;
+    let selesai = nilai.length;
 
-    let persen = jobs.length > 0
-        ? Math.round(selesai / jobs.length * 100)
+    let persen =
+        semuaJobs.length > 0
+        ? Math.round(
+            selesai /
+            semuaJobs.length *
+            100
+        )
         : 0;
 
-    let html = `
+    let total = 0;
 
-    <div class="card">
+    nilai.forEach(item => {
 
-        <h2>
-            👤 ${siswa.options[siswa.selectedIndex].text}
-        </h2>
+        total += Number(item.nilai);
 
-        <p>NIS : ${nis}</p>
+    });
 
-        <p>
-            Progress ${selesai}/${jobs.length}
-            (${persen}%)
-        </p>
+    let rata =
+        selesai > 0
+        ? Math.round(total / selesai)
+        : 0;
 
-        <div class="progress">
+    let tabel = "";
 
-            <div class="progress-bar"
-                 style="width:${persen}%">
+    semuaJobs.forEach(job => {
 
-            </div>
+        let n = nilaiMap[job.id_job];
 
-        </div>
+        tabel += `
 
-    </div>
-    `;
+        <tr>
 
+            <td>
+                ${n != null ? "✅" : "❌"}
+            </td>
 
-    // MATERI
+            <td>
+                ${job.judul_job}
+            </td>
 
-    html += `
-    <div class="card">
+            <td>
+                ${n ?? "-"}
+            </td>
 
-        <h2>📚 Materi</h2>
-    `;
+        </tr>
 
-    materi.forEach(item => {
-
-        html += `
-        <p>
-            ✓ ${item.judul_materi}
-        </p>
         `;
 
     });
 
-    html += `
+    modalBody.innerHTML = `
+
+    <h2>
+
+        👤 ${siswa.nama}
+
+    </h2>
+
+    <p>
+
+        ${siswa.nis}
+
+    </p>
+
+    <p>
+
+        Progress ${persen}%
+
+    </p>
+
+    <div class="progress">
+
+        <div class="progress-bar"
+            style="width:${persen}%">
+
+        </div>
+
     </div>
+
+    <h3>
+
+        ⭐ Rata-rata : ${rata}
+
+    </h3>
+
+    <table class="table">
+
+        <thead>
+
+            <tr>
+
+                <th></th>
+
+                <th>Jobsheet</th>
+
+                <th>Nilai</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            ${tabel}
+
+        </tbody>
+
+    </table>
+
     `;
 
+    modal.classList.add("show");
 
-    // JOBSHEET
+}
 
-    html += `
-    <div class="card">
 
-        <h2>📝 Jobsheet</h2>
-    `;
 
-    jobs.forEach(job => {
+function closeModal() {
 
-        let n = nilaiMap[job.id_job];
-
-        if (n != null) {
-
-            html += `
-            <p>
-
-                ✅ ${job.judul_job}
-
-                <br>
-
-                <small>${job.media}</small>
-
-                <br>
-
-                Nilai : ${n}
-
-            </p>
-            `;
-
-        } else {
-
-            html += `
-            <p>
-
-                ❌ ${job.judul_job}
-
-                <br>
-
-                <small>${job.media}</small>
-
-            </p>
-            `;
-
-        }
-
-    });
-
-    html += `
-    </div>
-    `;
-
-    konten.innerHTML = html;
-
-  } finally {
-
-        btn.disabled = false;
-        btn.innerHTML = "🔎 Tampilkan Data";
-
-    }
+    modal.classList.remove("show");
 
 }

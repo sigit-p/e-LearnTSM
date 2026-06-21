@@ -16,116 +16,53 @@
     <!-- Sidebar -->
     <aside class="sidebar">
 
-        <div class="logo">
-            <h2>e-Nilai Mupa</h2>
-            <small>SMK Muhammadiyah Pakem</small>
-        </div>
+    <div class="logo">
+        <h2>e-Nilai Mupa</h2>
+        <small>SMK Muhammadiyah Pakem</small>
+    </div>
 
-        <button onclick="dashboard()">
-            🏠 Dashboard
-        </button>
+    <div class="sidebar-divider"></div>
 
-        <button onclick="halamanNilai()">
-            📖 Cek Nilai
-        </button>
+    <div class="sidebar-title">
+        MENU UTAMA
+    </div>
 
-        <button onclick="loginAdmin()">
-            🔒 Login Admin
-        </button>
+    <button onclick="halamanDashboard();closeSidebar()">
+    🏠 Dashboard
+    </button>
 
-        <div class="versi">
-            Versi 1.0
-        </div>
+    <button onclick="halamanNilai();closeSidebar()">
+    📖 Cek Nilai
+    </button>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-title">
+        ADMIN
+    </div>
+
+    <button onclick="loginAdmin();closeSidebar()">
+    🔒 Login Admin
+    </button>
+    
+    <div class="sidebar-divider"></div>
+    
+    <div class="versi">
+        Versi 1.0<br>
+        © sigitpbw@2026
+    </div>
 
     </aside>
 
+    <div class="overlay" onclick="closeSidebar()"></div>
 
     <!-- Main -->
     <main class="main">
+        <button class="menu-btn" onclick="toggleSidebar()">
+        ☰
+        </button>
 
-        <div class="header">
-            <h1>Dashboard</h1>
-            <small>e-Nilai Praktik TSM Mupa</small>
-        </div>
-
-
-        <div id="konten">
-
-            <!-- Statistik -->
-            <div class="grid">
-
-                <div class="info-box">
-                    <p>Total Kelas</p>
-                    <h2 id="jmlKelas">0</h2>
-                </div>
-
-                <div class="info-box">
-                    <p>Total Siswa</p>
-                    <h2 id="jmlSiswa">0</h2>
-                </div>
-
-                <div class="info-box">
-                    <p>Materi</p>
-                    <h2 id="jmlMateri">0</h2>
-                </div>
-
-                <div class="info-box">
-                    <p>Jobsheet</p>
-                    <h2 id="jmlJobsheet">0</h2>
-                </div>
-
-            </div>
-
-
-            <!-- Progress -->
-            <div class="card">
-
-                <h2>Progress Penilaian</h2>
-
-                <div class="progress">
-                    <div class="progress-bar"
-                         id="progressBar"
-                         style="width:0%">
-                    </div>
-                </div>
-
-                <p id="progressText">
-                    Memuat data...
-                </p>
-
-            </div>
-
-
-            <!-- Selamat Datang -->
-            <div class="card">
-
-                <h2>e-Nilai Praktik Mupa</h2>
-
-                <p>
-                    Selamat datang di sistem informasi nilai praktik
-                    SMK Muhammadiyah Pakem.
-                </p>
-
-                <p>
-                    Gunakan menu <b>📖 Cek Nilai</b> untuk melihat
-                    perkembangan dan hasil penilaian siswa.
-                </p>
-
-            </div>
-
-
-            <!-- Aktivitas -->
-            <div class="card">
-
-                <h2>Aktivitas Terbaru</h2>
-
-                <div id="aktivitas">
-
-                    <p>Memuat data...</p>
-
-                </div>
-
-            </div>
+       <div id="konten">
 
         </div>
 
@@ -135,10 +72,16 @@
 
 <script src="js/api.js"></script>
 <script src="js/app.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/siswa.js"></script>
+<!--
+<script src="js/admin.js"></script>
+<script src="js/rekap.js"></script>
+-->
 
 <script>
 
-loadDashboard();
+halamanDashboard();
 
 </script>
 

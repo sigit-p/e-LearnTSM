@@ -1,62 +1,90 @@
-function halamanSiswa(){
 
-}
 
-function halamanInput(){
+async function getDashboard(){
 
-}
+    const r = await fetch(
+        API + "?action=getDashboard"
+    );
 
-function halamanRekap(){
+    return await r.json();
 
 }
 
 async function loadDashboard(){
 
-    // kelas
-    const kelas = await getKelas();
-    document.getElementById("jmlKelas").innerText = kelas.length;
+    if (!document.getElementById("jmlKelas")) return;
+    
+    const d = await getDashboard();
+
+        document.getElementById("jmlKelas").innerText =
+        d.jmlKelas;
+
+        document.getElementById("jmlSiswa").innerText =
+        d.jmlSiswa;
+
+        document.getElementById("jmlMateri").innerText =
+        d.jmlMateri;
+
+        document.getElementById("jmlJobsheet").innerText =
+        d.jmlJobsheet;
 
 
-    // siswa
-    const siswa = await getSiswa();
-    document.getElementById("jmlSiswa").innerText = siswa.length;
+        // Progress
+        let totalTarget =
+            d.jmlSiswa *
+            d.jmlJobsheet;
 
+        let persen = 0;
 
-    // materi
-    const materi = await getMateri();
-    document.getElementById("jmlMateri").innerText = materi.length;
+        if(totalTarget>0){
+            persen = Math.round(
+                d.jmlNilai / totalTarget * 100
+            );
+        }
 
+        document.getElementById("progressBar")
+            .style.width = persen + "%";
 
-    // jobsheet
-    const jobsheet = await getJobsheet();
-    document.getElementById("jmlJobsheet").innerText = jobsheet.length;
-
-
-    // nilai
-    const nilai = await getNilaiSemua();
-
-    const totalNilai = nilai.length;
-    const totalTarget = siswa.length * jobsheet.length;
-
-    const persen = Math.round(totalNilai / totalTarget * 100);
-
-    document.getElementById("progressBar")
-        .style.width = persen + "%";
-
-    document.getElementById("progressText")
-        .innerHTML =
-        totalNilai +
-        " dari " +
-        totalTarget +
-        " nilai sudah masuk (" +
-        persen +
-        "%)";
+        document.getElementById("progressText")
+            .innerHTML =
+            d.jmlNilai +
+            " dari " +
+            totalTarget +
+            " nilai sudah masuk (" +
+            persen +
+            "%)";
 
 
     document.getElementById("aktivitas").innerHTML = `
         <p>✓ Sistem siap digunakan</p>
-        <p>✓ ${kelas.length} kelas berhasil dimuat</p>
-        <p>✓ ${siswa.length} siswa berhasil dimuat</p>
-        <p>✓ ${jobsheet.length} jobsheet berhasil dimuat</p>
+        <p>✓ ${d.jmlKelas} kelas berhasil dimuat</p>
+        <p>✓ ${d.jmlSiswa} siswa berhasil dimuat</p>
+        <p>✓ ${d.jmlJobsheet} jobsheet berhasil dimuat</p>
     `;
+
+}
+
+function toggleSidebar(){
+
+    document.querySelector(".sidebar")
+        .classList.toggle("show");
+
+    document.querySelector(".overlay")
+        .classList.toggle("show");
+
+}
+
+
+function closeSidebar(){
+
+    if(window.innerWidth <= 768){
+
+        document.querySelector(".sidebar")
+            .classList.remove("show");
+
+        document.querySelector(".overlay")
+            .classList.remove("show");
+
+    }
+
 }

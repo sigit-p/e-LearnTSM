@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>e-Nilai TSM Mupa</title>
+<title>e-Nilai Praktik Mupa</title>
 
 <link rel="stylesheet" href="css/style.css">
 
@@ -13,9 +13,13 @@
 
 <div class="layout">
 
-    <div class="sidebar">
+    <!-- Sidebar -->
+    <aside class="sidebar">
 
-        <h2>e-Nilai Mupa</h2>
+        <div class="logo">
+            <h2>e-Nilai Mupa</h2>
+            <small>SMK Muhammadiyah Pakem</small>
+        </div>
 
         <button onclick="dashboard()">
             🏠 Dashboard
@@ -30,21 +34,57 @@
         </button>
 
         <button onclick="halamanRekap()">
-            📊 Rekap
+            📊 Rekap Nilai
         </button>
 
-    </div>
+        <div class="versi">
+            Versi 1.0
+        </div>
+
+    </aside>
 
 
-    <div class="main">
+    <!-- Main -->
+    <main class="main">
 
-        <div id="konten">
+        <div class="header">
 
-            Selamat Datang
+            <div>
+                <h1>Dashboard</h1>
+                <small>e-Nilai Praktik TSM Mupa</small>
+            </div>
 
         </div>
 
-    </div>
+        <div id="konten">
+
+            <div class="grid">
+
+                <div class="info-box">
+                    <p>Total Kelas</p>
+                    <h2>3</h2>
+                </div>
+
+                <div class="info-box">
+                    <p>Total Siswa</p>
+                    <h2>108</h2>
+                </div>
+
+                <div class="info-box">
+                    <p>Jobsheet</p>
+                    <h2>12</h2>
+                </div>
+
+                <div class="info-box">
+                    <p>Progress</p>
+                    <h2>75%</h2>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
 
 </div>
 

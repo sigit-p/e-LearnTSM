@@ -11,22 +11,22 @@ async function getDashboard(){
 }
 
 async function loadDashboard(){
+    if(!document.getElementById("jmlKelas"))
+        return;
 
-    if (!document.getElementById("jmlKelas")) return;
-    
     const d = await getDashboard();
 
-        document.getElementById("jmlKelas").innerText =
-        d.jmlKelas;
+    document.getElementById("jmlKelas").innerText =
+    d.jmlKelas;
 
-        document.getElementById("jmlSiswa").innerText =
-        d.jmlSiswa;
+    document.getElementById("jmlSiswa").innerText =
+    d.jmlSiswa;
 
-        document.getElementById("jmlMateri").innerText =
-        d.jmlMateri;
+    document.getElementById("jmlMateri").innerText =
+    d.jmlMateri;
 
-        document.getElementById("jmlJobsheet").innerText =
-        d.jmlJobsheet;
+    document.getElementById("jmlJobsheet").innerText =
+    d.jmlJobsheet;
 
 
         // Progress

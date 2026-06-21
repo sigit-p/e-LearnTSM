@@ -1,229 +1,191 @@
-const kelas = document.getElementById("kelas");
-const siswa = document.getElementById("siswa");
-const jobsheet = document.getElementById("jobsheet");
-
-let jobs = [];
-
-loadKelas();
-
-kelas.onchange = loadSiswa;
-
-siswa.onchange = loadJobsheet;
-
-async function loadKelas() {
-
-    let res = await fetch(API + "?action=getKelas");
-    let data = await res.json();
-
-    let html = "";
-
-    data.forEach(item => {
-
-        html += `
-        <option value="${item.id_kelas}">
-            ${item.nama_kelas}
-        </option>
-        `;
-
-    });
-
-    kelas.innerHTML =
-        '<option value="">Pilih Kelas</option>' + html;
-
-    siswa.innerHTML =
-        '<option value="">Pilih Siswa</option>';
-
-    jobsheet.innerHTML="";
-
-}
-
-
-async function loadSiswa() {
-    jobs = [];
-    jobsheet.innerHTML = "";
-    
-if(!kelas.value){
-
-    siswa.innerHTML =
-    '<option value="">Pilih Siswa</option>';
-
-    return;
-}
-    
-    let id_kelas = kelas.value;
-
-    let res = await fetch(
-        API + "?action=getSiswa&id_kelas=" + id_kelas
+let user =
+    JSON.parse(
+        localStorage.getItem("user")
     );
 
-    let data = await res.json();
 
-    let html = "";
+function halamanLogin(){
 
-    data.forEach(item => {
+    konten.innerHTML = `
 
-        html += `
-        <option value="${item.nis}">
-            ${item.nama}
-        </option>
-        `;
+    <div class="header">
 
-    });
+        <h1>🔒 Login Admin</h1>
 
-    siswa.innerHTML =
-        '<option value="">Pilih Siswa</option>' + html;
+        <small>
+            Masuk sebagai guru/admin
+        </small>
 
-    jobsheet.innerHTML="";
-}
-
-async function loadJobsheet(){
-
-    let nis = siswa.value;
-
-    if(!nis){
-        jobsheet.innerHTML="";
-        return;
-    }
-
-    let resJob = await fetch(
-        API+"?action=getJobsheet&id_mapel=PKSM&tingkat=XI"
-    );
-
-    jobs = await resJob.json();
-
-
-    let resNilai = await fetch(
-        API+"?action=getNilai&nis="+nis
-    );
-
-    let nilai = await resNilai.json();
-
-    let html = "";
-
-    let nilaiMap = {};
-    nilai.forEach(item=>{
-    nilaiMap[item.id_job] = item.nilai;
-    });
-
-    let selesai = Object.keys(nilaiMap).length;
-    let persen = jobs.length > 0
-    ? Math.round(selesai / jobs.length * 100)
-    : 0;
-
-html += `
-<div class="card">
-
-<h2>
-👤 ${siswa.options[siswa.selectedIndex].text}
-</h2>
-
-<p>NIS : ${nis}</p>
-
-<p>
-Progress ${selesai}/${jobs.length} (${persen}%)
-</p>
-
-<div class="progress">
-    <div class="progress-bar"
-         style="width:${persen}%">
     </div>
-</div>
 
-</div>
-`;
-    
-    jobs.forEach(job=>{
+    <div class="card login-card">
 
-    let n = nilaiMap[job.id_job] || "";
+        <input
+            type="text"
+            id="username"
+            class="search-input"
+            placeholder="Username">
 
-html += `
-<div class="card">
+        <input
+            type="password"
+            id="password"
+            class="search-input"
+            placeholder="Password">
 
-<h3>${job.judul_job}</h3>
+        <button
+            class="btn-detail"
+            onclick="cekLogin()">
 
-<p>${job.media}</p>
+            Login
 
-<label>Nilai</label>
+        </button>
 
-<input
-type="number"
-id="${job.id_job}"
-value="${n}"
-min="0"
-max="100">
+    </div>
 
-</div>
-`;
-
-    });
-
-    html += `
-    <button
-        id="btnSimpan"
-        onclick="simpanNilai()">
-        💾 Simpan Nilai
-    </button>
     `;
 
-    jobsheet.innerHTML = html;
+}
+
+async function cekLogin(){
+
+    let username =
+        document
+        .getElementById("username")
+        .value;
+
+    let password =
+        document
+        .getElementById("password")
+        .value;
+
+    let data =
+        await login(
+            username,
+            password
+        );
+
+    if(data.status){
+
+    localStorage.setItem(
+        "user",
+        JSON.stringify(data)
+    );
+
+    user = data;
+    
+    updateMenuLogin();
+
+    tampilMenuAdmin();
+
+    halamanDashboard();
+    
+    alert(
+        "Login berhasil"
+    );
+
+}else{
+
+    alert(
+        data.pesan
+    );
 
 }
 
-async function simpanNilai() {
-
-    if (!siswa.value) {
-    alert("Pilih siswa terlebih dahulu");
-    return;
 }
-    let btn = document.getElementById("btnSimpan");
 
-    try {
+function tampilMenuAdmin(){
 
-        btn.disabled = true;
-        btn.innerHTML = "Menyimpan...";
+ document.getElementById("menuAdmin").innerHTML = `
 
-        let nis = siswa.value;
+<button onclick="halamanInput();closeSidebar()">
+📝 Input Nilai
+</button>
 
-        for (let job of jobs) {
+<button onclick="halamanRekap();closeSidebar()">
+📊 Rekap Nilai
+</button>
 
-            let nilai = document.getElementById(job.id_job).value;
+<button>
+⚙ Pengaturan
+</button>
+`;
 
-            if (nilai != "") {
+document.getElementById("userPanel").innerHTML = `
 
-                nilai = Number(nilai);
+<div class="user-card">
 
-                if (nilai < 0) nilai = 0;
-                if (nilai > 100) nilai = 100;
+    <div class="user-avatar">
+        👤
+    </div>
 
-                let res = await fetch(
-                    API
-                    + "?action=saveNilai"
-                    + "&nis=" + nis
-                    + "&id_job=" + job.id_job
-                    + "&nilai=" + nilai
-                );
+    <div class="user-info">
 
-                let hasil = await res.json();
+        <div class="user-name">
+            ${user.nama}
+        </div>
 
-                if (!hasil.status) {
-                    throw new Error("Gagal menyimpan");
-                }
+        <div class="user-role">
+            ${user.role}
+        </div>
 
-            }
+        <div class="user-status">
+            🟢 Online
+        </div>
 
-        }
+    </div>
 
-        alert("Nilai berhasil disimpan");
-        await loadJobsheet();
-    } catch (err) {
+</div>
 
-        console.error(err);
-        alert("Terjadi kesalahan");
+<button
+    class="btn-logout"
+    onclick="logout()">
 
-    } finally {
+    🚪 Logout
 
-        btn.disabled = false;
-        btn.innerHTML = "💾 Simpan Nilai";
+</button>
+
+`;
+
+}
+
+
+function logout(){
+
+    localStorage.removeItem(
+        "user"
+    );
+
+    user = null;
+
+    document.getElementById(
+        "menuAdmin"
+    ).innerHTML = "";
+
+    document.getElementById(
+        "userPanel"
+    ).innerHTML = "";
+
+    updateMenuLogin();
+
+    halamanDashboard();
+
+}
+
+
+function updateMenuLogin(){
+
+    let btn =
+        document.getElementById(
+            "btnLogin"
+        );
+
+    if(user){
+
+        btn.style.display = "none";
+
+    }else{
+
+        btn.style.display = "";
 
     }
 

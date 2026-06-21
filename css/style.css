@@ -30,7 +30,6 @@ body{
 
 .sidebar{
     width:250px;
-    background:#1f2937;
     color:white;
     padding:20px;
     position:fixed;
@@ -38,7 +37,12 @@ body{
     bottom:0;
     left:0;
     overflow:auto;
+    min-height:100vh;
+    display:flex;
+    background:#1e293b;
+    flex-direction:column;
 }
+
 
 .logo{
     margin-bottom:30px;
@@ -93,11 +97,10 @@ body{
 }
 
 .versi{
-    position:absolute;
-    bottom:20px;
-    left:20px;
     color:#9ca3af;
-    font-size:14px;
+    font-size:13px;
+    text-align:center;
+    margin-top:20px;
 }
 
 /* ===== Header ===== */
@@ -388,4 +391,286 @@ body{
 .table td{
     padding:12px;
     border-bottom:1px solid #ddd;
+}
+
+.skeleton-card{
+    height:100px;
+    border-radius:15px;
+    margin-bottom:15px;
+    background:linear-gradient(
+        90deg,
+        #f2f2f2 25%,
+        #e5e5e5 50%,
+        #f2f2f2 75%
+    );
+    background-size:200% 100%;
+    animation:skeleton 1.3s infinite;
+}
+
+@keyframes skeleton{
+    0%{
+        background-position:200% 0;
+    }
+    100%{
+        background-position:-200% 0;
+    }
+}
+
+.stat-grid{
+    display:grid;
+    grid-template-columns:
+    repeat(auto-fit,minmax(120px,1fr));
+    gap:15px;
+    margin:20px 0;
+}
+
+.mini-stat{
+    background:#f8fafc;
+    padding:15px;
+    text-align:center;
+    border-radius:15px;
+}
+
+.mini-stat h3{
+    margin:0;
+    color:#2563eb;
+}
+
+
+.status-ok{
+    background:#dcfce7;
+    color:#15803d;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+.status-no{
+    background:#fee2e2;
+    color:#dc2626;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+
+.nilai-a{
+    background:#22c55e;
+    color:white;
+    padding:5px 12px;
+    border-radius:20px;
+}
+
+.nilai-b{
+    background:#3b82f6;
+    color:white;
+    padding:5px 12px;
+    border-radius:20px;
+}
+
+.nilai-c{
+    background:#facc15;
+    color:black;
+    padding:5px 12px;
+    border-radius:20px;
+}
+
+.nilai-d{
+    background:#ef4444;
+    color:white;
+    padding:5px 12px;
+    border-radius:20px;
+}
+
+.nilai-kosong{
+    background:#e5e7eb;
+    color:#555;
+    padding:5px 12px;
+    border-radius:20px;
+}
+
+.mini-icon{
+    font-size:26px;
+    margin-bottom:10px;
+}
+
+.badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:50%;
+
+    font-weight:bold;
+
+}
+
+.nilai-a{
+
+    background:#22c55e;
+
+    color:white;
+
+}
+
+
+.nilai-b{
+
+    background:#3b82f6;
+
+    color:white;
+
+}
+
+.nilai-c{
+
+    background:#facc15;
+
+    color:black;
+
+}
+
+.nilai-d{
+
+    background:#ef4444;
+
+    color:white;
+
+}
+
+.nilai-kosong{
+
+    background:#e5e7eb;
+
+    color:#666;
+
+}
+
+.table tbody tr:nth-child(even){
+
+    background:#f8fafc;
+
+}
+
+.user-card{
+
+    background:#0f172a;
+
+    border:1px solid rgba(255,255,255,.1);
+
+    border-radius:15px;
+
+    padding:15px;
+
+    margin-top:20px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+}
+
+.user-avatar{
+
+    width:55px;
+
+    height:55px;
+
+    border-radius:50%;
+
+    background:#2563eb;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:24px;
+
+}
+
+
+.user-name{
+
+    font-weight:600;
+
+    font-size:15px;
+
+}
+
+
+.user-role{
+
+    color:#cbd5e1;
+
+    font-size:13px;
+
+}
+
+
+.user-status{
+
+    color:#22c55e;
+
+    font-size:12px;
+
+    margin-top:5px;
+
+}
+
+
+.btn-logout{
+
+    width:100%;
+
+    margin-top:10px;
+
+    background:#ef4444;
+
+    color:white;
+
+    border:none;
+
+    padding:12px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    margin-bottom:20px;
+
+}
+
+
+.user-footer{
+
+    text-align:center;
+
+    color:#94a3b8;
+
+    font-size:12px;
+
+    margin-top:15px;
+
+}
+
+
+.sidebar-bottom{
+
+    margin-top:auto;
+
+    border-top:1px solid rgba(255,255,255,.1);
+
+    padding-top:20px;
+
 }

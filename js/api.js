@@ -45,3 +45,25 @@ async function getNilaiSemua(){
 
     return await r.json();
 }
+
+async function login(username,password){
+
+    let res = await fetch(
+
+        API +
+
+        "?action=login"
+
+        +
+
+        "&username=" + username
+
+        +
+
+        "&password=" + password
+
+    );
+
+    return await res.json();
+
+}

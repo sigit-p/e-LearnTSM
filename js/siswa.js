@@ -87,7 +87,6 @@ async function loadKelas() {
 
 
 async function loadDaftarSiswa() {
-console.log("load siswa");
     let id_kelas =
         document.getElementById("kelas").value;
 
@@ -99,7 +98,13 @@ console.log("load siswa");
 
     }
 
-    listSiswa.innerHTML = "Memuat...";
+    listSiswa.innerHTML = `
+
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+
+        `;
 
     semuaSiswa =
         await getSiswa(id_kelas);
@@ -232,7 +237,51 @@ function filterSiswa() {
 
 }
 
+function badgeNilai(nilai){
 
+    nilai = Number(nilai);
+
+    if(nilai >= 90)
+        return "nilai-a";
+
+    if(nilai >= 75)
+        return "nilai-b";
+
+    if(nilai >= 60)
+        return "nilai-c";
+
+    return "nilai-d";
+
+}
+
+function badgeNilai(nilai){
+
+    nilai = Number(nilai);
+
+    if(nilai >= 90)
+        return "nilai-a";
+
+    if(nilai >= 75)
+        return "nilai-b";
+
+    if(nilai >= 60)
+        return "nilai-c";
+
+    return "nilai-d";
+
+}
+
+function warnaProgress(persen){
+
+    if(persen >= 80)
+        return "#22c55e";
+
+    if(persen >= 50)
+        return "#facc15";
+
+    return "#ef4444";
+
+}
 
 function showDetail(nis) {
 
@@ -298,7 +347,19 @@ function showDetail(nis) {
             </td>
 
             <td>
-                ${n ?? "-"}
+
+            ${
+            n!=null
+            ?
+            `<span class="badge ${badgeNilai(n)}">
+            ${n}
+            </span>`
+            :
+            `<span class="badge nilai-kosong">
+            -
+            </span>`
+            }
+
             </td>
 
         </tr>
@@ -307,66 +368,112 @@ function showDetail(nis) {
 
     });
 
-    modalBody.innerHTML = `
+ modalBody.innerHTML = `
 
-    <h2>
+<h2>
 
-        👤 ${siswa.nama}
+👤 ${siswa.nama}
 
-    </h2>
+</h2>
 
-    <p>
+<p>
 
-        ${siswa.nis}
+NIS : ${siswa.nis}
 
-    </p>
+</p>
 
-    <p>
+<div class="stat-grid">
 
-        Progress ${persen}%
+<div class="mini-stat">
 
-    </p>
+<div class="mini-icon">
+📚
+</div>
 
-    <div class="progress">
+<h3>${semuaJobs.length}</h3>
 
-        <div class="progress-bar"
-            style="width:${persen}%">
+<small>Jobsheet</small>
 
-        </div>
+</div>
 
-    </div>
+<div class="mini-stat">
 
-    <h3>
+<div class="mini-icon">
+✅
+</div>
 
-        ⭐ Rata-rata : ${rata}
+<h3>${selesai}</h3>
 
-    </h3>
+<small>Selesai</small>
 
-    <table class="table">
+</div>
 
-        <thead>
+<div class="mini-stat">
 
-            <tr>
+<div class="mini-icon">
+📈
+</div>
 
-                <th></th>
+<h3>${persen}%</h3>
 
-                <th>Jobsheet</th>
+<small>Progress</small>
 
-                <th>Nilai</th>
+</div>
 
-            </tr>
+<div class="mini-stat">
 
-        </thead>
+<div class="mini-icon">
+⭐
+</div>
 
-        <tbody>
+<h3>${rata}</h3>
 
-            ${tabel}
+<small>Rata-rata</small>
 
-        </tbody>
+</div>
 
-    </table>
+</div>
 
-    `;
+
+<div class="progress">
+
+<div class="progress-bar"
+
+style="
+width:${persen}%;
+background:${warnaProgress(persen)}
+">
+
+</div>
+
+</div>
+
+
+<table class="table">
+
+<thead>
+
+<tr>
+
+<th>Status</th>
+
+<th>Jobsheet</th>
+
+<th>Nilai</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+${tabel}
+
+</tbody>
+
+</table>
+
+`;
 
     modal.classList.add("show");
 

@@ -1,0 +1,450 @@
+/* ======================================================
+   e-Learn TSM MUPA
+   File        : animations.css
+   Version     : 2.0.0
+   Description : Animation Library
+====================================================== */
+
+/* ======================================================
+   GLOBAL TRANSITION
+====================================================== */
+
+* {
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease,
+    opacity 0.25s ease;
+}
+
+/* ======================================================
+   FADE
+====================================================== */
+
+.fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* ======================================================
+   FADE UP
+====================================================== */
+
+.fade-up {
+  opacity: 0;
+
+  animation: fadeUp 0.45s ease forwards;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+
+    transform: translateY(25px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+/* ======================================================
+   FADE DOWN
+====================================================== */
+
+.fade-down {
+  opacity: 0;
+
+  animation: fadeDown 0.45s ease forwards;
+}
+
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+
+    transform: translateY(-25px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+/* ======================================================
+   FADE LEFT
+====================================================== */
+
+.fade-left {
+  opacity: 0;
+
+  animation: fadeLeft 0.45s ease forwards;
+}
+
+@keyframes fadeLeft {
+  from {
+    opacity: 0;
+
+    transform: translateX(25px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateX(0);
+  }
+}
+
+/* ======================================================
+   FADE RIGHT
+====================================================== */
+
+.fade-right {
+  opacity: 0;
+
+  animation: fadeRight 0.45s ease forwards;
+}
+
+@keyframes fadeRight {
+  from {
+    opacity: 0;
+
+    transform: translateX(-25px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateX(0);
+  }
+}
+
+/* ======================================================
+   ZOOM
+====================================================== */
+
+.zoom-in {
+  opacity: 0;
+
+  animation: zoomIn 0.35s ease forwards;
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: scale(1);
+  }
+}
+
+/* ======================================================
+   POP
+====================================================== */
+
+.pop {
+  animation: pop 0.25s ease;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.9);
+  }
+
+  70% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ======================================================
+   PULSE
+====================================================== */
+
+.pulse {
+  animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.04);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ======================================================
+   SHAKE
+====================================================== */
+
+.shake {
+  animation: shake 0.35s;
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* ======================================================
+   SPINNER
+====================================================== */
+
+.spinner {
+  width: 42px;
+
+  height: 42px;
+
+  border: 4px solid #e2e8f0;
+
+  border-top-color: var(--primary);
+
+  border-radius: 50%;
+
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ======================================================
+   BUTTON HOVER
+====================================================== */
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* ======================================================
+   CARD HOVER
+====================================================== */
+
+.card {
+  transition: 0.25s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+
+  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.12);
+}
+
+/* ======================================================
+   SIDEBAR MENU
+====================================================== */
+
+.sidebar .menu a {
+  transition: 0.25s;
+}
+
+.sidebar .menu a:hover {
+  transform: translateX(5px);
+}
+
+/* ======================================================
+   IMAGE HOVER
+====================================================== */
+
+.img-hover {
+  overflow: hidden;
+}
+
+.img-hover img {
+  transition: 0.4s;
+}
+
+.img-hover:hover img {
+  transform: scale(1.05);
+}
+
+/* ======================================================
+   PAGE TRANSITION
+====================================================== */
+
+.page-enter {
+  animation: pageEnter 0.35s ease;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+/* ======================================================
+   TOAST
+====================================================== */
+
+.toast-show {
+  animation: toastShow 0.35s ease;
+}
+
+@keyframes toastShow {
+  from {
+    opacity: 0;
+
+    transform: translateX(100%);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateX(0);
+  }
+}
+
+/* ======================================================
+   MODAL
+====================================================== */
+
+.modal-show {
+  animation: modalShow 0.25s ease;
+}
+
+@keyframes modalShow {
+  from {
+    opacity: 0;
+
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: scale(1);
+  }
+}
+
+/* ======================================================
+   LOADING
+====================================================== */
+
+.loading.show {
+  animation: fadeIn 0.2s;
+}
+
+/* ======================================================
+   DELAY
+====================================================== */
+
+.delay-1 {
+  animation-delay: 0.1s;
+}
+
+.delay-2 {
+  animation-delay: 0.2s;
+}
+
+.delay-3 {
+  animation-delay: 0.3s;
+}
+
+.delay-4 {
+  animation-delay: 0.4s;
+}
+
+.delay-5 {
+  animation-delay: 0.5s;
+}
+
+/* ======================================================
+   RIPPLE
+====================================================== */
+
+.ripple {
+  position: relative;
+
+  overflow: hidden;
+}
+
+.ripple::after {
+  content: "";
+
+  position: absolute;
+
+  width: 10px;
+
+  height: 10px;
+
+  background: rgba(255, 255, 255, 0.4);
+
+  border-radius: 50%;
+
+  transform: scale(0);
+
+  opacity: 0;
+}
+
+.ripple:active::after {
+  animation: ripple 0.5s ease;
+}
+
+@keyframes ripple {
+  from {
+    transform: scale(0);
+
+    opacity: 0.8;
+  }
+
+  to {
+    transform: scale(20);
+
+    opacity: 0;
+  }
+}

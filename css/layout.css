@@ -1,0 +1,376 @@
+/* ======================================================
+   e-Learn TSM MUPA
+   File        : layout.css
+   Version     : 2.0.0
+   Description : Main Layout
+====================================================== */
+
+/* ===============================
+   APP
+================================== */
+
+#app {
+  display: flex;
+
+  min-height: 100vh;
+}
+
+/* ===============================
+   SIDEBAR
+================================== */
+
+.sidebar {
+  width: 260px;
+
+  background: var(--sidebar);
+
+  color: #fff;
+
+  position: fixed;
+
+  top: 0;
+
+  left: 0;
+
+  bottom: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  transition: var(--transition);
+
+  z-index: 1000;
+
+  overflow: hidden;
+}
+
+.brand {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 18px 16px;
+
+  min-height: 72px;
+}
+
+.brand-icon {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 28px;
+
+  height: 28px;
+
+  font-size: 18px;
+
+  color: #fff;
+}
+
+.brand-text {
+  display: flex;
+
+  flex-direction: column;
+
+  line-height: 1.2;
+
+  transition:
+    opacity 0.2s ease,
+    width 0.2s ease,
+    overflow 0.2s ease;
+}
+
+.sidebar.collapsed {
+  width: 80px;
+}
+
+.sidebar.collapsed .brand {
+  justify-content: center;
+
+  padding-left: 8px;
+
+  padding-right: 8px;
+}
+
+.sidebar.collapsed .btn {
+  justify-content: center;
+  text-align: center;
+}
+
+.sidebar.collapsed .nav-label,
+.sidebar.collapsed .sidebar-access-text,
+.sidebar.collapsed .sidebar-badge-label,
+.sidebar.collapsed .sidebar-footer,
+.sidebar.collapsed .brand-text {
+  display: none !important;
+}
+
+#sidebarAccessBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.sidebar-badge-label {
+  display: inline;
+  white-space: nowrap;
+}
+
+.sidebar.collapsed #sidebarAccessBadge {
+  width: 32px;
+  min-width: 32px;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  overflow: hidden;
+}
+
+.sidebar.collapsed .sidebar-access-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: auto;
+}
+
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+
+  padding-left: 0;
+
+  padding-right: 0;
+}
+
+.sidebar.collapsed .nav-item i {
+  margin-right: 0;
+}
+
+.menu {
+  display: flex;
+
+  flex-direction: column;
+}
+
+.nav-item {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  text-align: left;
+}
+
+.nav-item i {
+  font-size: 1.1rem;
+
+  min-width: 18px;
+}
+
+.nav-label {
+  transition:
+    opacity 0.2s ease,
+    width 0.2s ease,
+    overflow 0.2s ease;
+}
+
+/* ===============================
+   MAIN
+================================== */
+
+.main {
+  flex: 1;
+
+  margin-left: 260px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  min-height: 100vh;
+
+  transition: var(--transition);
+}
+
+.main.expand {
+  margin-left: 80px;
+}
+
+/* ===============================
+   HEADER
+================================== */
+
+.header {
+  height: 70px;
+
+  background: var(--white);
+
+  border-bottom: 1px solid var(--border);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 0 24px;
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 900;
+}
+
+/* ===============================
+   CONTENT
+================================== */
+
+.content {
+  flex: 1;
+
+  padding: 24px;
+}
+
+/* ===============================
+   FOOTER
+================================== */
+
+.footer {
+  background: #fff;
+
+  border-top: 1px solid var(--border);
+
+  padding: 15px 24px;
+
+  color: var(--subtext);
+
+  font-size: 13px;
+}
+
+/* ===============================
+   PAGE
+================================== */
+
+.page {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+.page-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 15px;
+}
+
+.page-title {
+  font-size: 28px;
+
+  font-weight: 700;
+}
+
+.page-subtitle {
+  color: var(--subtext);
+
+  font-size: 14px;
+}
+
+.page-content {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+/* ===============================
+   SIDEBAR OVERLAY
+================================== */
+
+.sidebar-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.45);
+
+  z-index: 998;
+
+  display: none;
+}
+
+.sidebar-overlay.show {
+  display: block;
+}
+
+/* ===============================
+   LOADING
+================================== */
+
+.loading {
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(255, 255, 255, 0.75);
+
+  backdrop-filter: blur(2px);
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  z-index: 3000;
+
+  visibility: hidden;
+
+  opacity: 0;
+
+  transition: 0.2s;
+}
+
+.loading.show {
+  visibility: visible;
+
+  opacity: 1;
+}
+
+/* ===============================
+   TOAST
+================================== */
+
+.toast-container {
+  position: fixed;
+
+  top: 20px;
+
+  right: 20px;
+
+  z-index: 4000;
+}
+
+/* ===============================
+   GLOBAL MODAL
+================================== */
+
+#globalModal {
+  z-index: 5000;
+}

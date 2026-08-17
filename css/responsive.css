@@ -1,0 +1,222 @@
+/* ======================================================
+   e-Learn TSM MUPA
+   File        : responsive.css
+   Version     : 2.0.0
+   Description : Responsive Layout
+====================================================== */
+
+/* ======================================================
+   LAPTOP
+====================================================== */
+
+@media (max-width: 1200px) {
+  .grid-4 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width: 992px) {
+  .sidebar {
+    transform: translateX(-100%);
+
+    width: 260px;
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
+  .main {
+    margin-left: 0;
+  }
+
+  .main.expand {
+    margin-left: 0;
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .header {
+    padding: 0 18px;
+  }
+
+  .content {
+    padding: 20px;
+  }
+
+  .page-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 24px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  h3 {
+    font-size: 18px;
+  }
+
+  .content {
+    padding: 16px;
+  }
+
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .toolbar > * {
+    width: 100%;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .filter-group {
+    width: 100%;
+
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .table {
+    display: block;
+
+    overflow-x: auto;
+
+    white-space: nowrap;
+  }
+
+  .pagination {
+    justify-content: center;
+
+    flex-wrap: wrap;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .widget {
+    padding: 16px;
+  }
+
+  .stat-card {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 16px;
+  }
+
+  .stat-icon {
+    width: 52px;
+
+    height: 52px;
+
+    font-size: 22px;
+  }
+}
+
+/* ======================================================
+   SMALL MOBILE
+====================================================== */
+
+@media (max-width: 576px) {
+  .header {
+    height: 65px;
+
+    padding: 0 14px;
+  }
+
+  .page-title {
+    font-size: 22px;
+  }
+
+  .page-subtitle {
+    font-size: 13px;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .btn-inline {
+    width: auto;
+  }
+
+  .card {
+    border-radius: 12px;
+  }
+
+  .form-control {
+    font-size: 14px;
+  }
+
+  .avatar {
+    width: 38px;
+
+    height: 38px;
+  }
+
+  .toast-container {
+    left: 12px;
+
+    right: 12px;
+
+    top: 12px;
+  }
+}
+
+/* ======================================================
+   LARGE DESKTOP
+====================================================== */
+
+@media (min-width: 1600px) {
+  .container {
+    max-width: 1500px;
+  }
+}

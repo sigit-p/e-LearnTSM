@@ -31,7 +31,7 @@ const CONFIG = {
        LOGIN
     ========================================== */
 
-  LOGIN_REQUIRED: true,
+  LOGIN_REQUIRED: false,
 
   SESSION_NAME: "elearn_session",
 

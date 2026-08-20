@@ -60,12 +60,17 @@ API.dashboard = () => API.request("dashboard");
  * ======================================================
  */
 
-API.login = (username, password) =>
-  API.request("login", {
-    username,
+/* ======================================================
+ * LOGIN
+ * ====================================================== */
 
+API.login = (username = "", password = "", role = "") => {
+  return API.request("login", {
+    username,
     password,
+    role,
   });
+};
 
 API.logout = () => API.request("logout");
 

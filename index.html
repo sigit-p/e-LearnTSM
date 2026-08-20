@@ -88,6 +88,21 @@
             <span class="nav-label">Login Pengelola</span>
           </button>
         </div>
+        <div
+          class="p-3 border-top"
+          id="sidebarUserLogoutWrap"
+          style="display: none"
+        >
+          <button
+            type="button"
+            id="sidebarUserLogoutBtn"
+            class="btn btn-outline-danger w-100"
+            onclick="logoutUser()"
+          >
+            <i class="bi bi-box-arrow-right"></i>
+            <span class="nav-label">Keluar Akun</span>
+          </button>
+        </div>
         <div class="p-3 border-top">
           <div
             class="mb-3 text-center sidebar-access-wrap"
@@ -123,9 +138,19 @@
       </aside>
       <div class="main">
         <header class="header">
-          <button class="btn btn-outline"><i class="bi bi-list"></i></button>
+          <button
+            class="btn btn-outline"
+            id="sidebarToggle"
+            type="button"
+            title="Toggle sidebar"
+          >
+            <i class="bi bi-list"></i>
+          </button>
+
           <h5 id="pageTitle">Dashboard</h5>
-          <div class="d-flex align-items-center gap-2">
+
+          <div class="header-actions">
+            <!-- STATUS AKSES -->
             <span
               id="accessStatus"
               class="badge bg-success-subtle text-success"
@@ -134,17 +159,21 @@
               PUBLIC
             </span>
 
+            <!-- KELUAR KELAS -->
             <button
               id="headerClassLogoutBtn"
               type="button"
-              class="btn btn-sm btn-outline-secondary d-none"
+              class="btn btn-outline-danger btn-sm d-none"
               onclick="logoutClassAccessButton()"
-              title="Keluar Kelas"
             >
-              <i class="bi bi-box-arrow-left"></i>
+              <i class="bi bi-box-arrow-right"></i>
+              Keluar Kelas
             </button>
 
-            <div id="userAvatar" class="avatar">?</div>
+            <!-- AVATAR -->
+            <div class="avatar">
+              <i class="bi bi-person-fill"></i>
+            </div>
           </div>
         </header>
         <main class="content">
@@ -181,6 +210,7 @@
     <script src="js/components/modal.js"></script>
     <script src="js/components/toast.js"></script>
     <script src="js/components/loading.js"></script>
+    <script src="js/modules/login/login.js"></script>
     <script src="js/modules/dashboard/dashboard.js"></script>
     <script src="js/modules/materi/materi.js"></script>
     <script src="js/modules/jobsheet/jobsheet.js"></script>

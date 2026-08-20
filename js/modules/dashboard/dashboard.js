@@ -127,18 +127,60 @@ function updateClassAccessFormVisibility() {
   const role = AppState.classAccess?.role || "public";
   const loginForm = document.getElementById("classAccessLoginForm");
   const codeForm = document.getElementById("classAccessCodeForm");
+  const loginStatus = document.getElementById("classAccessLoginStatus");
+  const loginStatusUsername = document.getElementById(
+    "classAccessLoginStatusUsername",
+  );
   const isLoggedIn = !!AppState.user?.login;
 
+  console.log("updateClassAccessFormVisibility:", {
+    role,
+    isLoggedIn,
+    user: AppState.user,
+    classAccess: AppState.classAccess,
+    loginForm,
+    codeForm,
+    loginStatus,
+  });
+
+  // Reset semua dulu
+  if (loginForm) {
+    loginForm.style.display = "none";
+    loginForm.classList.add("d-none");
+  }
+  if (codeForm) {
+    codeForm.style.display = "none";
+    codeForm.classList.add("d-none");
+  }
+  if (loginStatus) {
+    loginStatus.style.display = "none";
+    loginStatus.classList.add("d-none");
+  }
+
+  // Kemudian tampilkan yang sesuai
   if (role === "public") {
-    if (loginForm) loginForm.classList.add("d-none");
-    if (codeForm) codeForm.classList.remove("d-none");
+    if (codeForm) {
+      codeForm.style.display = "block";
+      codeForm.classList.remove("d-none");
+    }
   } else {
     if (isLoggedIn) {
-      if (loginForm) loginForm.classList.add("d-none");
-      if (codeForm) codeForm.classList.remove("d-none");
+      // Sudah login, tampilkan status
+      if (loginStatus) {
+        loginStatus.style.display = "block";
+        loginStatus.classList.remove("d-none");
+        if (loginStatusUsername) {
+          const username =
+            AppState.user?.username || AppState.user?.name || "Pengguna";
+          loginStatusUsername.textContent = username;
+        }
+      }
     } else {
-      if (loginForm) loginForm.classList.remove("d-none");
-      if (codeForm) codeForm.classList.add("d-none");
+      // Belum login, tampilkan form login
+      if (loginForm) {
+        loginForm.style.display = "block";
+        loginForm.classList.remove("d-none");
+      }
     }
   }
 }
@@ -179,56 +221,14 @@ function updateLoginFormLabels() {
   if (loginButton) loginButton.textContent = config.buttonText;
 }
 
-async function loginClassAccess() {
-  const username = document.getElementById("classAccessUsername");
-  const password = document.getElementById("classAccessPassword");
-
-  if (!username || !password) return;
-
-  const user = username.value.trim();
-  const pass = password.value.trim();
-
-  if (!user || !pass) {
-    showClassAccessMessage("Username dan password wajib diisi.", "danger");
-    return;
-  }
-
-  try {
-    showLoading();
-    showClassAccessMessage("Melakukan login...", "muted");
-
-    const result = await API.login(user, pass);
-
-    AppState.user = {
-      ...AppState.user,
-      ...result,
-      login: true,
-    };
-
-    Storage.set("user", AppState.user);
-    username.value = "";
-    password.value = "";
-
-    updateClassAccessFormVisibility();
-    showClassAccessMessage(
-      "Login berhasil. Silakan masukkan kode kelas.",
-      "success",
-    );
-  } catch (err) {
-    console.error("Login Error:", err);
-    showClassAccessMessage(
-      err.message || "Login gagal. Periksa username dan password.",
-      "danger",
-    );
-  } finally {
-    hideLoading();
-  }
-}
-
 function logoutClassAccessButton() {
   logoutClassAccess();
-  showClassAccessMessage("Kembali ke mode publik.", "muted");
+
   setClassAccessRole("public");
+
+  updateClassAccessUI();
+
+  showClassAccessMessage("Kembali ke mode publik.", "muted");
 }
 
 /* ======================================================
@@ -249,98 +249,77 @@ function showClassAccessMessage(message, type = "muted") {
 /* ======================================================
    UPDATE ACCESS STATUS
 ====================================================== */
-
 function updateClassAccessUI() {
   const status = document.getElementById("accessStatus");
-  const sidebarBadge = document.getElementById("sidebarAccessBadge");
-  const sidebarText = document.getElementById("sidebarAccessText");
-  const sidebarWrap = document.querySelector(".sidebar-access-wrap");
-  const classLogoutBtn = document.getElementById("classAccessLogoutBtn");
-  const sidebarClassLogoutBtn = document.getElementById(
-    "sidebarClassLogoutBtn",
-  );
-  const headerClassLogoutBtn = document.getElementById("headerClassLogoutBtn");
-  const roleButtons = document.querySelectorAll("[data-class-role]");
 
-  const active = AppState.classAccess?.active && !!AppState.classAccess?.kode;
-  const showSidebarAccess = active || !!AppState.user?.login;
+  const headerLogout = document.getElementById("headerClassLogoutBtn");
 
-  if (roleButtons.length) {
-    const selectedRole = AppState.classAccess?.role || "public";
+  const cardLogout = document.getElementById("classAccessLogoutBtn");
 
-    roleButtons.forEach((button) => {
-      const isActive = button.dataset.classRole === selectedRole;
-      button.classList.toggle("active", isActive);
-      button.classList.toggle("btn-primary", isActive);
-      button.classList.toggle("btn-outline-primary", !isActive);
-    });
-  }
+  const active = !!AppState.classAccess?.active;
 
-  if (sidebarWrap) {
-    sidebarWrap.style.display = showSidebarAccess ? "block" : "none";
-  }
+  /* ==========================================
+     PUBLIC
+  ========================================== */
 
-  if (classLogoutBtn) {
-    classLogoutBtn.classList.toggle("d-none", !active);
-  }
-
-  if (sidebarClassLogoutBtn) {
-    sidebarClassLogoutBtn.classList.toggle("d-none", !active);
-  }
-
-  if (headerClassLogoutBtn) {
-    headerClassLogoutBtn.classList.toggle("d-none", !active);
-  }
-
-  if (status) {
-    if (active) {
-      status.className = "badge bg-primary-subtle text-primary";
-      status.innerHTML = `
-        <i class="bi bi-mortarboard-fill"></i>
-        ${escapeHtml(AppState.classAccess.kode)}
-      `;
-    } else {
+  if (!active) {
+    if (status) {
       status.className = "badge bg-success-subtle text-success";
+
       status.innerHTML = `
         <i class="bi bi-globe2"></i>
         PUBLIC
       `;
     }
+
+    /* Header */
+
+    if (headerLogout) {
+      headerLogout.classList.add("d-none");
+    }
+
+    /* Card */
+
+    if (cardLogout) {
+      cardLogout.classList.add("d-none");
+    }
+
+    return;
   }
 
-  if (sidebarBadge) {
-    if (active) {
-      sidebarBadge.className = "badge bg-primary-subtle text-primary px-3 py-2";
-      sidebarBadge.innerHTML = `
-        <i class="bi bi-mortarboard-fill"></i>
-        <span class="sidebar-badge-label">${escapeHtml(AppState.classAccess.kode)}</span>
-      `;
-    } else if (AppState.user?.login) {
-      sidebarBadge.className = "badge bg-info-subtle text-info px-3 py-2";
-      sidebarBadge.innerHTML = `
-        <i class="bi bi-shield-lock"></i>
-        <span class="sidebar-badge-label">PENGELOLA</span>
-      `;
-    } else {
-      sidebarBadge.className = "badge bg-success-subtle text-success px-3 py-2";
-      sidebarBadge.innerHTML = `
-        <i class="bi bi-globe2"></i>
-        <span class="sidebar-badge-label">PUBLIC</span>
-      `;
-    }
+  /* ==========================================
+     KELAS AKTIF
+  ========================================== */
+
+  const kode = String(AppState.classAccess.kode || "")
+    .trim()
+    .toUpperCase();
+
+  if (status) {
+    status.className = "badge bg-primary-subtle text-primary";
+
+    status.innerHTML = `
+      <i class="bi bi-mortarboard-fill"></i>
+      ${escapeHtml(kode)}
+    `;
   }
 
-  if (sidebarText) {
-    if (active) {
-      sidebarText.textContent = "Kelas aktif";
-    } else if (AppState.user?.login) {
-      sidebarText.textContent = "Pengelola";
-    } else {
-      sidebarText.textContent = "Akses tanpa login";
-    }
+  /* ==========================================
+     HEADER LOGOUT
+  ========================================== */
+
+  if (headerLogout) {
+    headerLogout.classList.remove("d-none");
+  }
+
+  /* ==========================================
+     CARD LOGOUT
+  ========================================== */
+
+  if (cardLogout) {
+    cardLogout.classList.remove("d-none");
   }
 }
-
 /* ======================================================
    RENDER DASHBOARD
 ====================================================== */
@@ -465,6 +444,17 @@ function renderDashboard(data) {
           >
             Guru
           </button>
+        </div>
+
+        <!-- Login Status (shown after login) -->
+        <div id="classAccessLoginStatus" class="d-none mt-3 text-center">
+          <div class="alert alert-info alert-sm py-2 mb-0">
+            <small>
+              <i class="bi bi-check-circle"></i>
+              Anda sudah login sebagai 
+              <strong id="classAccessLoginStatusUsername">-</strong>
+            </small>
+          </div>
         </div>
 
         <!-- Login Form (for non-public roles) -->
@@ -724,6 +714,12 @@ function renderDashboard(data) {
     </section>
 
   `;
+
+  /* ==========================================
+     UPDATE CLASS ACCESS UI
+  ========================================== */
+
+  updateClassAccessUI();
 }
 
 /* ======================================================
@@ -807,8 +803,6 @@ function progressItem(label, value) {
     </div>
 
   `;
-  updateClassAccessFormVisibility();
-  updateLoginFormLabels();
 }
 
 /* ======================================================

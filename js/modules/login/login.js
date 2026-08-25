@@ -42,9 +42,16 @@ function setClassAccessRole(role) {
     .trim()
     .toLowerCase();
 
+  if (AppState.classAccess?.active || AppState.user?.login) {
+    showClassAccessMessage(
+      "Silakan Keluar Kelas/Akun terlebih dahulu untuk mengganti akses.",
+      "muted",
+    );
+    return;
+  }
+
   AppState.classAccess = {
     ...AppState.classAccess,
-
     role: role,
   };
 
@@ -65,96 +72,6 @@ function setClassAccessRole(role) {
   updateClassAccessFormVisibility();
 
   updateLoginFormLabels();
-}
-
-/* ======================================================
-   FORM VISIBILITY
-====================================================== */
-
-function updateClassAccessFormVisibility() {
-  const role = AppState.classAccess?.role || "public";
-
-  const loginForm = document.getElementById("classAccessLoginForm");
-
-  const codeForm = document.getElementById("classAccessCodeForm");
-
-  const loginStatus = document.getElementById("classAccessLoginStatus");
-
-  const loginStatusUsername = document.getElementById(
-    "classAccessLoginStatusUsername",
-  );
-
-  const isLoggedIn = !!AppState.user?.login;
-
-  /* ------------------------------------------
-     Reset
-  ------------------------------------------ */
-
-  if (loginForm) {
-    loginForm.style.display = "none";
-
-    loginForm.classList.add("d-none");
-  }
-
-  if (codeForm) {
-    codeForm.style.display = "none";
-
-    codeForm.classList.add("d-none");
-  }
-
-  if (loginStatus) {
-    loginStatus.style.display = "none";
-
-    loginStatus.classList.add("d-none");
-  }
-
-  /* ------------------------------------------
-     PUBLIC
-  ------------------------------------------ */
-
-  if (role === "public") {
-    if (codeForm) {
-      codeForm.style.display = "block";
-
-      codeForm.classList.remove("d-none");
-    }
-
-    return;
-  }
-
-  /* ------------------------------------------
-     SUDAH LOGIN
-  ------------------------------------------ */
-
-  if (isLoggedIn) {
-    if (loginStatus) {
-      loginStatus.style.display = "block";
-
-      loginStatus.classList.remove("d-none");
-    }
-
-    if (loginStatusUsername) {
-      const username =
-        AppState.user?.username ||
-        AppState.user?.name ||
-        AppState.user?.nama ||
-        "Pengguna";
-
-      loginStatusUsername.textContent = username;
-    }
-
-    return;
-  }
-
-  /* ------------------------------------------
-     BELUM LOGIN
-  ------------------------------------------ */
-
-  if (loginForm) {
-    loginForm.style.display = "block";
-
-    loginForm.classList.remove("d-none");
-  }
 }
 
 /* ======================================================
@@ -236,6 +153,25 @@ async function loginClassAccess() {
     console.log("Login berhasil:", user);
 
     /* ------------------------------------------
+   PERTAHANKAN CLASS ACCESS
+------------------------------------------ */
+
+    const savedClassAccess = Storage.get("classAccess");
+
+    if (savedClassAccess && savedClassAccess.active && savedClassAccess.kode) {
+      AppState.classAccess = {
+        ...savedClassAccess,
+        active: true,
+        kode: String(savedClassAccess.kode).trim().toUpperCase(),
+        role: user?.role || selectedRole || "public",
+      };
+
+      AppState.setKelas(AppState.classAccess.kode);
+
+      Storage.set("classAccess", AppState.classAccess);
+    }
+
+    /* ------------------------------------------
    CEK ROLE
 ------------------------------------------ */
 
@@ -301,6 +237,43 @@ async function loginClassAccess() {
     ------------------------------------------ */
 
     window.location.hash = "#dashboard";
+
+    // Sinkronkan ulang UI setelah dashboard selesai dirender
+    setTimeout(() => {
+      const loggedRole = String(AppState.user?.role || "")
+        .trim()
+        .toLowerCase();
+
+      if (["siswa", "ortu", "guru"].includes(loggedRole)) {
+        AppState.classAccess.role = loggedRole;
+
+        if (AppState.classAccess.active) {
+          Storage.set("classAccess", AppState.classAccess);
+        }
+      }
+
+      updateClassAccessUI();
+      updateClassAccessFormVisibility();
+      updateLoginFormLabels();
+
+      if (
+        typeof Header !== "undefined" &&
+        typeof Header.ensureAccessControls === "function"
+      ) {
+        Header.ensureAccessControls();
+      }
+
+      if (
+        typeof Sidebar !== "undefined" &&
+        typeof Sidebar.applyState === "function"
+      ) {
+        Sidebar.applyState();
+      }
+
+      if (typeof updateAdminFooterVisibility === "function") {
+        updateAdminFooterVisibility();
+      }
+    }, 0);
   } catch (err) {
     console.error("Login Error:", err);
 
@@ -316,9 +289,230 @@ async function loginClassAccess() {
 /* ======================================================
    LOGOUT AKUN
 ====================================================== */
-
 function logoutUser() {
+  /* ======================================================
+   LOGOUT SEMUA AKSES
+====================================================== */
+
+  function logoutAllAccess() {
+    /* Logout akun jika sedang login */
+    if (AppState.user?.login) {
+      Auth.logout();
+    }
+
+    /* Keluar dari kelas */
+    Storage.remove("classAccess");
+
+    AppState.classAccess = {
+      active: false,
+      role: "public",
+      kode: "",
+      kelas: [],
+    };
+
+    /* Kembali ke PUBLIC */
+    AppState.setPublic();
+
+    /* Update layout */
+    if (typeof applyApplicationLayout === "function") {
+      applyApplicationLayout();
+    }
+
+    /* Update UI */
+    if (typeof updateClassAccessUI === "function") {
+      updateClassAccessUI();
+    }
+
+    if (typeof updateClassAccessFormVisibility === "function") {
+      updateClassAccessFormVisibility();
+    }
+
+    if (typeof updateLoginFormLabels === "function") {
+      updateLoginFormLabels();
+    }
+
+    if (
+      typeof Header !== "undefined" &&
+      typeof Header.ensureAccessControls === "function"
+    ) {
+      Header.ensureAccessControls();
+    }
+
+    if (
+      typeof Sidebar !== "undefined" &&
+      typeof Sidebar.applyState === "function"
+    ) {
+      Sidebar.applyState();
+    }
+
+    if (typeof updateAdminFooterVisibility === "function") {
+      updateAdminFooterVisibility();
+    }
+
+    /* Bersihkan pesan login */
+    const loginMessage = document.getElementById("classAccessMessage");
+
+    if (loginMessage) {
+      loginMessage.textContent = "";
+      loginMessage.className = "small text-center mt-3 d-none";
+    }
+
+    console.log("Logout semua akses berhasil.");
+
+    window.location.hash = "#dashboard";
+  }
+
+  /* ==========================================
+     LOGOUT SESSION
+  ========================================== */
+
   Auth.logout();
+
+  /* ==========================================
+     KEMBALIKAN ROLE FORM KE PUBLIC
+  ========================================== */
+
+  if (
+    !AppState.classAccess?.active &&
+    typeof setClassAccessRole === "function"
+  ) {
+    setClassAccessRole("public");
+  }
+
+  /* ==========================================
+     UPDATE FORM LOGIN
+  ========================================== */
+
+  if (typeof updateClassAccessFormVisibility === "function") {
+    updateClassAccessFormVisibility();
+  }
+
+  if (typeof updateLoginFormLabels === "function") {
+    updateLoginFormLabels();
+  }
+
+  /* ==========================================
+     UPDATE STATUS DASHBOARD
+  ========================================== */
+
+  if (typeof updateClassAccessUI === "function") {
+    updateClassAccessUI();
+  }
+
+  /* ==========================================
+   BERSIHKAN PESAN LOGIN LAMA
+========================================== */
+
+  const loginMessage = document.getElementById("classAccessMessage");
+
+  if (loginMessage) {
+    loginMessage.textContent = "";
+
+    loginMessage.className = "small text-center mt-3 d-none";
+  }
+
+  /* ==========================================
+     UPDATE HEADER
+  ========================================== */
+
+  if (
+    typeof Header !== "undefined" &&
+    typeof Header.ensureAccessControls === "function"
+  ) {
+    Header.ensureAccessControls();
+  }
+
+  /* ==========================================
+     UPDATE SIDEBAR
+  ========================================== */
+
+  if (
+    typeof Sidebar !== "undefined" &&
+    typeof Sidebar.applyState === "function"
+  ) {
+    Sidebar.applyState();
+  }
+
+  /* ==========================================
+     HILANGKAN TOMBOL KELUAR AKUN
+  ========================================== */
+
+  const headerLogout = document.getElementById("headerUserLogoutBtn");
+
+  if (headerLogout) {
+    headerLogout.classList.add("d-none");
+
+    headerLogout.style.display = "none";
+  }
+
+  const sidebarLogout = document.getElementById("sidebarUserLogoutWrap");
+
+  if (sidebarLogout) {
+    sidebarLogout.style.display = "none";
+  }
+
+  console.log("Logout UI berhasil disinkronkan.");
+}
+
+/* ======================================================
+   LOGOUT SEMUA AKSES
+====================================================== */
+
+function logoutAllAccess() {
+  console.log("Logout semua akses...");
+
+  /* Logout akun */
+  if (AppState.user?.login) {
+    Auth.logout();
+  }
+
+  /* Keluar kelas */
+  if (typeof logoutClassAccess === "function") {
+    logoutClassAccess();
+  } else {
+    Storage.remove("classAccess");
+
+    AppState.classAccess = {
+      active: false,
+      role: "public",
+      kode: "",
+      kelas: [],
+    };
+  }
+
+  /* Kembali PUBLIC */
+  if (typeof AppState.setPublic === "function") {
+    AppState.setPublic();
+  }
+
+  /* Sinkronkan UI */
+  if (typeof updateClassAccessUI === "function") {
+    updateClassAccessUI();
+  }
+
+  if (typeof updateClassAccessFormVisibility === "function") {
+    updateClassAccessFormVisibility();
+  }
+
+  if (typeof updateLoginFormLabels === "function") {
+    updateLoginFormLabels();
+  }
+
+  if (
+    typeof Header !== "undefined" &&
+    typeof Header.ensureAccessControls === "function"
+  ) {
+    Header.ensureAccessControls();
+  }
+
+  if (
+    typeof Sidebar !== "undefined" &&
+    typeof Sidebar.applyState === "function"
+  ) {
+    Sidebar.applyState();
+  }
+
+  console.log("Logout semua akses berhasil.");
 }
 
 /* ======================================================

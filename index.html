@@ -78,60 +78,25 @@
             <span class="nav-label">CBT</span>
           </a>
         </nav>
-        <div class="p-3 border-top">
-          <button
-            type="button"
-            id="btnAdminLogin"
-            class="btn btn-outline-light w-100"
-          >
-            <i class="bi bi-shield-lock"></i>
-            <span class="nav-label">Login Pengelola</span>
-          </button>
-        </div>
+
+        <!-- KELUAR -->
         <div
           class="p-3 border-top"
-          id="sidebarUserLogoutWrap"
+          id="sidebarLogoutWrap"
           style="display: none"
         >
           <button
             type="button"
-            id="sidebarUserLogoutBtn"
+            id="sidebarLogoutBtn"
             class="btn btn-outline-danger w-100"
-            onclick="logoutUser()"
+            onclick="logoutAllAccess()"
           >
             <i class="bi bi-box-arrow-right"></i>
-            <span class="nav-label">Keluar Akun</span>
+            <span class="nav-label">Keluar</span>
           </button>
         </div>
-        <div class="p-3 border-top">
-          <div
-            class="mb-3 text-center sidebar-access-wrap"
-            style="display: none"
-          >
-            <span
-              id="sidebarAccessBadge"
-              class="badge bg-success-subtle text-success px-3 py-2"
-            >
-              <i class="bi bi-globe2"></i>
-              <span class="sidebar-badge-label">PUBLIC</span>
-            </span>
-            <div
-              id="sidebarAccessText"
-              class="small text-light mt-1 sidebar-access-text"
-            >
-              Akses tanpa login
-            </div>
-            <button
-              id="sidebarClassLogoutBtn"
-              type="button"
-              class="btn btn-sm btn-outline-light w-100 mt-2 d-none"
-              onclick="logoutClassAccessButton()"
-            >
-              <i class="bi bi-box-arrow-left"></i>
-              <span class="sidebar-badge-label">Keluar Kelas</span>
-            </button>
-          </div>
-        </div>
+
+        <!-- FOOTER -->
         <div class="sidebar-footer p-3 border-top text-center text-light small">
           App Version: v2.0.0
         </div>
@@ -159,17 +124,6 @@
               PUBLIC
             </span>
 
-            <!-- KELUAR KELAS -->
-            <button
-              id="headerClassLogoutBtn"
-              type="button"
-              class="btn btn-outline-danger btn-sm d-none"
-              onclick="logoutClassAccessButton()"
-            >
-              <i class="bi bi-box-arrow-right"></i>
-              Keluar Kelas
-            </button>
-
             <!-- AVATAR -->
             <div class="avatar">
               <i class="bi bi-person-fill"></i>
@@ -188,8 +142,82 @@
               </div>
             </div>
           </div>
+
+          <!-- ======================================================
+     LOGIN ADMINISTRATOR
+====================================================== -->
+
+          <div
+            id="adminLoginForm"
+            class="card shadow-sm d-none"
+            style="display: none"
+          >
+            <div class="card-body p-4">
+              <div class="text-center mb-4">
+                <div class="fs-1 text-primary">
+                  <i class="bi bi-shield-lock-fill"></i>
+                </div>
+
+                <h4 class="mb-1">Login Administrator</h4>
+
+                <div class="small text-muted">Masuk ke panel pengelola</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="adminUsername" class="form-label"> Username </label>
+
+                <input
+                  type="text"
+                  id="adminUsername"
+                  class="form-control"
+                  placeholder="Username Administrator"
+                  autocomplete="username"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="adminPassword" class="form-label"> Password </label>
+
+                <input
+                  type="password"
+                  id="adminPassword"
+                  class="form-control"
+                  placeholder="Password Administrator"
+                  autocomplete="current-password"
+                />
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-primary w-100"
+                onclick="loginAdministrator()"
+              >
+                <i class="bi bi-box-arrow-in-right"></i>
+                Masuk Administrator
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-link w-100 mt-2"
+                onclick="hideAdminLogin()"
+              >
+                Kembali
+              </button>
+            </div>
+          </div>
         </main>
-        <footer class="footer">©2026 e-Learn TSM MUPA</footer>
+        <footer class="app-footer">
+          <span>© e-Learn TSM MUPA 2.0.0</span>
+
+          <button
+            type="button"
+            class="admin-footer-btn"
+            onclick="showAdminLogin()"
+          >
+            <i class="bi bi-shield-lock"></i>
+            Administrator
+          </button>
+        </footer>
       </div>
     </div>
     <div class="modal fade" id="globalModal">
@@ -211,6 +239,7 @@
     <script src="js/components/toast.js"></script>
     <script src="js/components/loading.js"></script>
     <script src="js/modules/login/login.js"></script>
+    <script src="js/modules/admin/admin.js"></script>
     <script src="js/modules/dashboard/dashboard.js"></script>
     <script src="js/modules/materi/materi.js"></script>
     <script src="js/modules/jobsheet/jobsheet.js"></script>

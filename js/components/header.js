@@ -15,6 +15,12 @@ const Header = {
     }
 
     /* ==========================================
+   HAPUS TOMBOL LOGOUT LAMA
+========================================== */
+
+    document.getElementById("headerUserLogoutBtn")?.remove();
+    document.getElementById("headerClassLogoutBtn")?.remove();
+    /* ==========================================
        TOGGLE SIDEBAR
     ========================================== */
 
@@ -28,14 +34,11 @@ const Header = {
           typeof Sidebar.toggle === "function"
         ) {
           Sidebar.toggle();
-
           return;
         }
 
         const sidebar = document.getElementById("sidebar");
-
         const overlay = document.getElementById("sidebarOverlay");
-
         const main = document.querySelector(".main");
 
         if (!sidebar || !main) {
@@ -44,11 +47,9 @@ const Header = {
 
         if (window.innerWidth <= 992) {
           sidebar.classList.toggle("show");
-
           overlay?.classList.toggle("show");
         } else {
           sidebar.classList.toggle("collapsed");
-
           main.classList.toggle("expand");
         }
       });
@@ -82,30 +83,20 @@ const Header = {
       return;
     }
 
-    /*
-     * Cari area kanan header.
-     */
+    /* ==========================================
+       CARI / BUAT AREA KANAN HEADER
+    ========================================== */
 
     let actions = header.querySelector(".header-actions");
 
-    /*
-     * Kalau belum ada, buat.
-     */
-
     if (!actions) {
       actions = document.createElement("div");
-
       actions.className = "header-actions";
-
-      /*
-       * Cari avatar.
-       */
 
       const avatar = header.querySelector(".avatar");
 
       if (avatar) {
         avatar.parentNode.insertBefore(actions, avatar);
-
         actions.appendChild(avatar);
       } else {
         header.appendChild(actions);
@@ -122,7 +113,6 @@ const Header = {
       status = document.createElement("span");
 
       status.id = "accessStatus";
-
       status.className = "badge bg-success-subtle text-success";
 
       status.innerHTML = `
@@ -140,60 +130,100 @@ const Header = {
     }
 
     /* ==========================================
-       LOGOUT KELAS
+       SATU TOMBOL KELUAR
     ========================================== */
-    /* ==========================================
-   LOGOUT AKUN
-========================================== */
 
-    let logoutUserBtn = document.getElementById("headerUserLogoutBtn");
+    let logoutBtn = document.getElementById("headerLogoutBtn");
 
-    if (!logoutUserBtn) {
-      logoutUserBtn = document.createElement("button");
+    if (!logoutBtn) {
+      logoutBtn = document.createElement("button");
 
-      logoutUserBtn.id = "headerUserLogoutBtn";
+      logoutBtn.id = "headerLogoutBtn";
+      logoutBtn.type = "button";
+      logoutBtn.className = "btn btn-outline-danger btn-sm d-none";
 
-      logoutUserBtn.type = "button";
+      logoutBtn.innerHTML = `
+        <i class="bi bi-box-arrow-right"></i>
+        Keluar
+      `;
 
-      logoutUserBtn.className = "btn btn-outline-danger btn-sm d-none";
+      logoutBtn.addEventListener("click", () => {
+        console.log("Tombol Keluar diklik.");
 
-      logoutUserBtn.innerHTML = `
-    <i class="bi bi-box-arrow-right"></i>
-    Keluar Akun
-  `;
+        if (typeof logoutAllAccess === "function") {
+          logoutAllAccess();
+          return;
+        }
 
-      logoutUserBtn.addEventListener("click", () => {
         if (typeof logoutUser === "function") {
           logoutUser();
+          return;
         }
+
+        console.error("Fungsi logout tidak ditemukan.");
       });
 
       const avatar = actions.querySelector(".avatar");
 
       if (avatar) {
-        actions.insertBefore(logoutUserBtn, avatar);
+        actions.insertBefore(logoutBtn, avatar);
       } else {
-        actions.appendChild(logoutUserBtn);
+        actions.appendChild(logoutBtn);
       }
     }
-    const userLogoutBtn = document.getElementById("headerUserLogoutBtn");
 
-    const classLogoutBtn = document.getElementById("headerClassLogoutBtn");
+    /* ==========================================
+       TENTUKAN STATUS AKTIF
+    ========================================== */
 
     const isLoggedIn = !!AppState.user?.login;
-
     const classActive = !!AppState.classAccess?.active;
 
-    /* Keluar Akun */
+    /* ==========================================
+       UPDATE ACCESS STATUS
+    ========================================== */
 
-    if (userLogoutBtn) {
-      userLogoutBtn.classList.toggle("d-none", !isLoggedIn);
+    const accessMode = AppState.access?.mode || "public";
+    const accessCode = AppState.access?.kode || "";
+
+    const accessLabels = {
+      public: "PUBLIC",
+      kelas: accessCode || "KELAS",
+      siswa: "SISWA",
+      ortu: "ORTU",
+      guru: "GURU",
+      admin: "ADMIN",
+    };
+
+    const accessIcons = {
+      public: "bi-globe2",
+      kelas: "bi-mortarboard-fill",
+      siswa: "bi-person-fill",
+      ortu: "bi-people-fill",
+      guru: "bi-person-badge-fill",
+      admin: "bi-shield-lock-fill",
+    };
+
+    if (status) {
+      status.innerHTML = `
+        <i class="bi ${accessIcons[accessMode] || "bi-globe2"}"></i>
+        ${accessLabels[accessMode] || "PUBLIC"}
+      `;
+
+      status.className =
+        accessMode === "public"
+          ? "badge bg-success-subtle text-success"
+          : accessMode === "kelas"
+            ? "badge bg-primary-subtle text-primary"
+            : "badge bg-dark text-white";
     }
 
-    /* Keluar Kelas */
+    /* ==========================================
+       TAMPILKAN SATU TOMBOL KELUAR
+    ========================================== */
 
-    if (classLogoutBtn) {
-      classLogoutBtn.classList.toggle("d-none", !classActive);
+    if (logoutBtn) {
+      logoutBtn.classList.toggle("d-none", !(isLoggedIn || classActive));
     }
   },
 };

@@ -26,7 +26,7 @@ async function loadDashboard() {
   } catch (err) {
     console.error("Dashboard Error :", err);
 
-    error(err.message || "Gagal memuat dashboard.");
+    console.error(err.message || "Gagal memuat dashboard.");
   } finally {
     hideLoading();
   }
@@ -84,8 +84,31 @@ async function enterClass() {
     };
 
     Storage.set("classAccess", AppState.classAccess);
+
+    // Sinkronkan mode KELAS langsung tanpa refresh.
+    AppState.setKelas(kode);
+
     updateClassAccessUI();
-    Sidebar.applyState();
+    updateClassAccessFormVisibility();
+    updateLoginFormLabels();
+
+    if (typeof applyApplicationLayout === "function") {
+      applyApplicationLayout();
+    }
+
+    if (
+      typeof Header !== "undefined" &&
+      typeof Header.ensureAccessControls === "function"
+    ) {
+      Header.ensureAccessControls();
+    }
+
+    if (
+      typeof Sidebar !== "undefined" &&
+      typeof Sidebar.applyState === "function"
+    ) {
+      Sidebar.applyState();
+    }
 
     showClassAccessMessage(
       `Berhasil masuk ke ${kode} sebagai ${selectedRole}.`,
@@ -108,9 +131,22 @@ async function enterClass() {
 ====================================================== */
 
 function setClassAccessRole(role) {
+  // Role tidak boleh diganti selama kelas atau akun masih aktif.
+  if (AppState.classAccess?.active || AppState.user?.login) {
+    showClassAccessMessage(
+      "Silakan Keluar Kelas/Akun terlebih dahulu untuk mengganti akses.",
+      "muted",
+    );
+    return;
+  }
+
+  role = String(role || "public")
+    .trim()
+    .toLowerCase();
+
   AppState.classAccess = {
     ...AppState.classAccess,
-    role: role || "public",
+    role,
   };
 
   document.querySelectorAll("[data-class-role]").forEach((button) => {
@@ -119,69 +155,157 @@ function setClassAccessRole(role) {
     button.classList.toggle("btn-primary", isActive);
     button.classList.toggle("btn-outline-primary", !isActive);
   });
+
   updateClassAccessFormVisibility();
   updateLoginFormLabels();
 }
 
 function updateClassAccessFormVisibility() {
   const role = AppState.classAccess?.role || "public";
+  const classActive = !!AppState.classAccess?.active;
+  const isLoggedIn = !!AppState.user?.login;
+
   const loginForm = document.getElementById("classAccessLoginForm");
   const codeForm = document.getElementById("classAccessCodeForm");
   const loginStatus = document.getElementById("classAccessLoginStatus");
   const loginStatusUsername = document.getElementById(
     "classAccessLoginStatusUsername",
   );
-  const isLoggedIn = !!AppState.user?.login;
+  const roleSelector = document.getElementById("classAccessRoleSelector");
+  const codeInput = document.getElementById("classCodeInput");
+  const enterButton = codeForm?.querySelector('button[onclick*="enterClass"]');
 
-  console.log("updateClassAccessFormVisibility:", {
-    role,
-    isLoggedIn,
-    user: AppState.user,
-    classAccess: AppState.classAccess,
-    loginForm,
-    codeForm,
-    loginStatus,
+  /* =====================================================
+     SUDAH MASUK KELAS
+     Semua kontrol akses kelas dikunci.
+  ===================================================== */
+
+  if (classActive) {
+    // Tampilkan form kelas
+    if (codeForm) {
+      codeForm.style.display = "block";
+      codeForm.classList.remove("d-none");
+    }
+
+    // Kunci input kode kelas
+    if (codeInput) {
+      codeInput.value = String(AppState.classAccess?.kode || "").toUpperCase();
+
+      codeInput.disabled = true;
+    }
+
+    // Kunci tombol masuk
+    if (enterButton) {
+      enterButton.disabled = true;
+      enterButton.innerHTML = 'Sudah Masuk <i class="bi bi-check-circle"></i>';
+    }
+
+    // Kunci pilihan Public / Siswa / Ortu / Guru
+    document.querySelectorAll("[data-class-role]").forEach((button) => {
+      button.disabled = true;
+    });
+
+    if (roleSelector) {
+      roleSelector.classList.add("locked");
+    }
+
+    // Kalau sudah login akun, tampilkan status akun
+    if (loginStatus) {
+      loginStatus.style.display = isLoggedIn ? "block" : "none";
+      loginStatus.classList.toggle("d-none", !isLoggedIn);
+    }
+
+    if (loginStatusUsername) {
+      loginStatusUsername.textContent =
+        AppState.user?.username ||
+        AppState.user?.nama ||
+        AppState.user?.name ||
+        "Pengguna";
+    }
+
+    // Form login akun tidak ditampilkan di kondisi ini
+    if (loginForm) {
+      loginForm.style.display = "none";
+      loginForm.classList.add("d-none");
+    }
+
+    return;
+  }
+
+  /* =====================================================
+     BELUM MASUK KELAS
+     Semua kontrol akses kelas kembali aktif.
+  ===================================================== */
+
+  if (codeInput) {
+    codeInput.disabled = false;
+  }
+
+  if (enterButton) {
+    enterButton.disabled = false;
+    enterButton.innerHTML =
+      'Masuk Pembelajaran <i class="bi bi-arrow-right"></i>';
+  }
+
+  document.querySelectorAll("[data-class-role]").forEach((button) => {
+    button.disabled = false;
   });
 
-  // Reset semua dulu
+  if (roleSelector) {
+    roleSelector.classList.remove("locked");
+  }
+
+  // Reset tampilan
   if (loginForm) {
     loginForm.style.display = "none";
     loginForm.classList.add("d-none");
   }
+
   if (codeForm) {
     codeForm.style.display = "none";
     codeForm.classList.add("d-none");
   }
+
   if (loginStatus) {
     loginStatus.style.display = "none";
     loginStatus.classList.add("d-none");
   }
 
-  // Kemudian tampilkan yang sesuai
-  if (role === "public") {
-    if (codeForm) {
-      codeForm.style.display = "block";
-      codeForm.classList.remove("d-none");
-    }
-  } else {
-    if (isLoggedIn) {
-      // Sudah login, tampilkan status
-      if (loginStatus) {
-        loginStatus.style.display = "block";
-        loginStatus.classList.remove("d-none");
-        if (loginStatusUsername) {
-          const username =
-            AppState.user?.username || AppState.user?.name || "Pengguna";
-          loginStatusUsername.textContent = username;
-        }
+  /* =====================================================
+     BELUM LOGIN AKUN
+  ===================================================== */
+
+  if (!isLoggedIn) {
+    if (role === "public") {
+      if (codeForm) {
+        codeForm.style.display = "block";
+        codeForm.classList.remove("d-none");
       }
     } else {
-      // Belum login, tampilkan form login
       if (loginForm) {
         loginForm.style.display = "block";
         loginForm.classList.remove("d-none");
       }
     }
+
+    return;
+  }
+
+  /* =====================================================
+     SUDAH LOGIN AKUN, TAPI TIDAK ADA CLASS ACCESS
+  ===================================================== */
+
+  if (loginStatus) {
+    loginStatus.style.display = "block";
+    loginStatus.classList.remove("d-none");
+  }
+
+  if (loginStatusUsername) {
+    loginStatusUsername.textContent =
+      AppState.user?.username ||
+      AppState.user?.nama ||
+      AppState.user?.name ||
+      "Pengguna";
   }
 }
 
@@ -228,9 +352,12 @@ function logoutClassAccessButton() {
 
   updateClassAccessUI();
 
+  if (typeof updateAdminFooterVisibility === "function") {
+    updateAdminFooterVisibility();
+  }
+
   showClassAccessMessage("Kembali ke mode publik.", "muted");
 }
-
 /* ======================================================
    CLASS ACCESS MESSAGE
 ====================================================== */
@@ -252,74 +379,113 @@ function showClassAccessMessage(message, type = "muted") {
 function updateClassAccessUI() {
   const status = document.getElementById("accessStatus");
 
-  const headerLogout = document.getElementById("headerClassLogoutBtn");
-
-  const cardLogout = document.getElementById("classAccessLogoutBtn");
-
-  const active = !!AppState.classAccess?.active;
-
   /* ==========================================
-     PUBLIC
+     TOMBOL KELUAR
   ========================================== */
 
-  if (!active) {
+  const headerLogout = document.getElementById("headerLogoutBtn");
+
+  const sidebarLogout = document.getElementById("sidebarLogoutWrap");
+
+  /* ==========================================
+     CEK STATUS
+  ========================================== */
+
+  const isLoggedIn = !!AppState.user?.login;
+  const classActive = !!AppState.classAccess?.active;
+
+  const userRole = String(AppState.user?.role || "")
+    .trim()
+    .toLowerCase();
+
+  /* ==========================================
+     SINKRONKAN TOMBOL ROLE
+  ========================================== */
+
+  const activeRole = classActive
+    ? String(AppState.classAccess.role || "public")
+        .trim()
+        .toLowerCase()
+    : isLoggedIn
+      ? userRole
+      : "public";
+
+  document.querySelectorAll("[data-class-role]").forEach((button) => {
+    const isActive = button.dataset.classRole === activeRole;
+
+    button.classList.toggle("active", isActive);
+    button.classList.toggle("btn-primary", isActive);
+    button.classList.toggle("btn-outline-primary", !isActive);
+
+    button.disabled = classActive;
+  });
+
+  /* ==========================================
+     TAMPILKAN / SEMBUNYIKAN TOMBOL KELUAR
+  ========================================== */
+
+  const showLogout = isLoggedIn || classActive;
+
+  if (headerLogout) {
+    headerLogout.classList.toggle("d-none", !showLogout);
+  }
+
+  if (sidebarLogout) {
+    sidebarLogout.style.display = showLogout ? "block" : "none";
+  }
+
+  /* ==========================================
+     LOGIN + KELAS
+  ========================================== */
+
+  if (classActive) {
+    const kode = String(AppState.classAccess.kode || "")
+      .trim()
+      .toUpperCase();
+
     if (status) {
-      status.className = "badge bg-success-subtle text-success";
+      status.className = "badge bg-primary-subtle text-primary";
 
       status.innerHTML = `
-        <i class="bi bi-globe2"></i>
-        PUBLIC
+        <i class="bi bi-mortarboard-fill"></i>
+        ${escapeHtml(kode)}
       `;
-    }
-
-    /* Header */
-
-    if (headerLogout) {
-      headerLogout.classList.add("d-none");
-    }
-
-    /* Card */
-
-    if (cardLogout) {
-      cardLogout.classList.add("d-none");
     }
 
     return;
   }
 
   /* ==========================================
-     KELAS AKTIF
+     LOGIN AKUN TANPA KELAS
   ========================================== */
 
-  const kode = String(AppState.classAccess.kode || "")
-    .trim()
-    .toUpperCase();
+  if (isLoggedIn) {
+    if (status) {
+      status.className = "badge bg-primary-subtle text-primary";
+
+      status.innerHTML = `
+        <i class="bi bi-person-check-fill"></i>
+        ${escapeHtml(userRole.toUpperCase())}
+      `;
+    }
+
+    return;
+  }
+
+  /* ==========================================
+     PUBLIC
+  ========================================== */
 
   if (status) {
-    status.className = "badge bg-primary-subtle text-primary";
+    status.className = "badge bg-success-subtle text-success";
 
     status.innerHTML = `
-      <i class="bi bi-mortarboard-fill"></i>
-      ${escapeHtml(kode)}
+      <i class="bi bi-globe2"></i>
+      PUBLIC
     `;
   }
-
-  /* ==========================================
-     HEADER LOGOUT
-  ========================================== */
-
-  if (headerLogout) {
-    headerLogout.classList.remove("d-none");
-  }
-
-  /* ==========================================
-     CARD LOGOUT
-  ========================================== */
-
-  if (cardLogout) {
-    cardLogout.classList.remove("d-none");
-  }
 }
+
 /* ======================================================
    RENDER DASHBOARD
 ====================================================== */
@@ -509,15 +675,7 @@ function renderDashboard(data) {
           class="small text-center mt-3"
         ></div>
 
-        <button
-          id="classAccessLogoutBtn"
-          class="btn btn-outline-secondary btn-sm w-100 mt-3 d-none"
-          onclick="logoutClassAccessButton()"
-        >
-          Keluar Kelas
-        </button>
-
-      </div>
+     </div>
 
     </div>
 
@@ -720,6 +878,8 @@ function renderDashboard(data) {
   ========================================== */
 
   updateClassAccessUI();
+  updateClassAccessFormVisibility();
+  updateLoginFormLabels();
 }
 
 /* ======================================================

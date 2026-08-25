@@ -37,8 +37,8 @@ const Auth = {
     };
 
     /* ------------------------------------------
-     Tentukan mode berdasarkan role
-  ------------------------------------------ */
+   Tentukan mode berdasarkan role
+------------------------------------------ */
 
     const userRole = String(user.role || "")
       .trim()
@@ -49,18 +49,54 @@ const Auth = {
     }
 
     /* ------------------------------------------
-     Terapkan layout
-  ------------------------------------------ */
+   BUKA LMS LANGSUNG
+------------------------------------------ */
+
+    AppState.ui.sidebar = true;
+
+    if (
+      typeof Sidebar !== "undefined" &&
+      typeof Sidebar.applyState === "function"
+    ) {
+      Sidebar.applyState();
+    }
+
+    if (
+      typeof Header !== "undefined" &&
+      typeof Header.ensureAccessControls === "function"
+    ) {
+      Header.ensureAccessControls();
+    }
+
+    /* ------------------------------------------
+   Terapkan layout
+------------------------------------------ */
 
     if (typeof applyApplicationLayout === "function") {
       applyApplicationLayout();
     }
 
+    if (typeof updateClassAccessUI === "function") updateClassAccessUI();
+    if (typeof updateClassAccessFormVisibility === "function")
+      updateClassAccessFormVisibility();
+    if (typeof updateLoginFormLabels === "function") updateLoginFormLabels();
+    if (
+      typeof Header !== "undefined" &&
+      typeof Header.ensureAccessControls === "function"
+    )
+      Header.ensureAccessControls();
+    if (
+      typeof Sidebar !== "undefined" &&
+      typeof Sidebar.applyState === "function"
+    )
+      Sidebar.applyState();
+
     return user;
   },
+
   /* ======================================================
-     LOGOUT
-  ====================================================== */
+   LOGOUT
+====================================================== */
 
   logout() {
     /* ------------------------------------------
@@ -107,6 +143,21 @@ const Auth = {
       applyApplicationLayout();
     }
 
+    if (typeof updateClassAccessUI === "function") updateClassAccessUI();
+    if (typeof updateClassAccessFormVisibility === "function")
+      updateClassAccessFormVisibility();
+    if (typeof updateLoginFormLabels === "function") updateLoginFormLabels();
+    if (
+      typeof Header !== "undefined" &&
+      typeof Header.ensureAccessControls === "function"
+    )
+      Header.ensureAccessControls();
+    if (
+      typeof Sidebar !== "undefined" &&
+      typeof Sidebar.applyState === "function"
+    )
+      Sidebar.applyState();
+
     /* ------------------------------------------
        Kembali ke Dashboard
     ------------------------------------------ */
@@ -128,7 +179,6 @@ const Auth = {
   /* ======================================================
    CHECK LOGIN
 ====================================================== */
-
   check() {
     const user = Storage.get("user");
 
@@ -147,9 +197,7 @@ const Auth = {
         role: CONFIG.DEFAULT_ROLE,
       };
 
-      /*
-       * Pastikan mode kembali Public/Kelas
-       */
+      /* Kembali ke PUBLIC / KELAS */
 
       if (AppState.classAccess && AppState.classAccess.active) {
         AppState.setKelas(AppState.classAccess.kode);
@@ -157,9 +205,7 @@ const Auth = {
         AppState.setPublic();
       }
 
-      /*
-       * Refresh seluruh layout
-       */
+      /* Refresh layout */
 
       if (typeof applyApplicationLayout === "function") {
         applyApplicationLayout();
@@ -214,9 +260,7 @@ const Auth = {
       applyApplicationLayout();
     }
 
-    /*
-     * Paksa sidebar mengikuti mode terbaru
-     */
+    /* Sidebar langsung terbuka */
 
     AppState.ui.sidebar = true;
 
@@ -227,9 +271,7 @@ const Auth = {
       Sidebar.applyState();
     }
 
-    /*
-     * Refresh tombol header
-     */
+    /* Refresh header */
 
     if (
       typeof Header !== "undefined" &&

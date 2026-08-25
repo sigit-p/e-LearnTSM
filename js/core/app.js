@@ -63,6 +63,38 @@ async function initApp() {
 
     applyApplicationLayout();
 
+    /* ==========================================
+       FINAL UI SYNC
+    ========================================== */
+
+    setTimeout(() => {
+      applyApplicationLayout();
+
+      if (typeof updateClassAccessUI === "function") {
+        updateClassAccessUI();
+      }
+
+      if (typeof updateClassAccessFormVisibility === "function") {
+        updateClassAccessFormVisibility();
+      }
+
+      if (
+        typeof Header !== "undefined" &&
+        typeof Header.ensureAccessControls === "function"
+      ) {
+        Header.ensureAccessControls();
+      }
+
+      if (
+        typeof Sidebar !== "undefined" &&
+        typeof Sidebar.applyState === "function"
+      ) {
+        Sidebar.applyState();
+      }
+
+      updateAccessStatus();
+    }, 0);
+
     console.log("Access Mode :", AppState.access.mode);
 
     console.log("Application Ready");
@@ -174,7 +206,7 @@ function restoreClassAccess() {
   AppState.classAccess = {
     active: true,
 
-    role: "kelas",
+    role: classAccess.role || "public",
 
     kode: String(classAccess.kode).trim().toUpperCase(),
 

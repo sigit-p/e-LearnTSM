@@ -1,1 +1,1124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>e-Koreksi Essay MUPA</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin:0; padding:20px; background:#f4f7fb; font-family:Arial,sans-serif; color:#222; }
+    .container { max-width:760px; margin:auto; }
+    h1 { text-align:center; margin-bottom:5px; }
+    .subtitle { text-align:center; color:#666; margin-bottom:25px; }
+    .card { background:#fff; padding:20px; border-radius:12px; margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+    label { display:block; font-weight:bold; margin-bottom:7px; }
+    select,input[type="file"],input[type="number"],textarea { width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; margin-bottom:15px; font-size:15px; }
+    textarea { line-height:1.45; resize:vertical; -webkit-user-select:text; user-select:text; -webkit-touch-callout:default; }
+    .edit-tools { display:flex; gap:6px; margin:-8px 0 12px; }
+    .edit-tools button { width:auto; flex:0 0 auto; padding:7px 10px; margin:0; font-size:12px; background:#eef3f8; color:#345; border:1px solid #ccd6e0; }
+    .edit-tools button:active { transform:scale(.98); }
+    .answer-box { min-height:150px; max-height:220px; overflow-y:auto; resize:vertical; }
+    .reason-box { min-height:90px; max-height:150px; overflow-y:auto; resize:vertical; }
+    .note-box { min-height:55px; max-height:90px; overflow-y:auto; resize:vertical; }
+    textarea[readonly], input[readonly] { background:#f5f5f5; color:#333; }
+    button { width:100%; padding:13px; border:0; border-radius:8px; font-size:16px; font-weight:bold; cursor:pointer; margin-top:8px; }
+    .btn-koreksi { background:#1976d2; color:#fff; }
+    .btn-edit { background:#ef6c00; color:#fff; }
+    .btn-ulang { background:#6a1b9a; color:#fff; }
+    .btn-simpan { background:#2e7d32; color:#fff; }
+    .btn-reset { background:#777; color:#fff; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .loading { display:none; text-align:center; padding:15px; color:#1976d2; font-weight:bold; }
+    .process-timer { margin-top:5px; font-size:13px; font-weight:normal; color:#555; }
+    .saved-process { display:none; background:#eef6ff; border:1px solid #cfe3ff; color:#155a9c; padding:14px; border-radius:10px; margin:12px 0 16px; text-align:center; font-weight:bold; }
+    .saved-process .process-timer { color:#555; }
+    .saved-progress-bar { height:7px; background:#dbeafe; border-radius:10px; overflow:hidden; margin-top:10px; }
+    .saved-progress-bar span { display:block; width:45%; height:100%; background:#1976d2; border-radius:10px; animation:savedProgress 1.2s ease-in-out infinite; }
+    .saved-ai-provider { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin:8px 0 12px; }
+    .saved-ai-option { display:flex; align-items:center; justify-content:center; text-align:center; padding:10px 7px; border:2px solid #ddd; border-radius:9px; background:#fff; cursor:pointer; font-size:13px; line-height:1.25; }
+    .saved-ai-option.selected { border-color:#6a1b9a; background:#f3e5f5; }
+    .saved-ai-option input { margin-right:5px; }
+    .saved-provider-info { font-size:12px; color:#666; margin-bottom:10px; }
+    .saved-message { display:none; padding:12px; border-radius:8px; margin:10px 0; font-weight:bold; }
+    .saved-message.success { background:#e8f5e9; color:#2e7d32; }
+    .saved-message.error { background:#ffebee; color:#c62828; }
+    @media(max-width:700px){ .saved-ai-provider { grid-template-columns:1fr 1fr; } }
+    @keyframes savedProgress { 0%{transform:translateX(-120%)} 100%{transform:translateX(250%)} }
+    .error { display:none; background:#ffebee; color:#c62828; padding:12px; border-radius:8px; margin-bottom:15px; }
+    .success { display:none; background:#e8f5e9; color:#2e7d32; padding:12px; border-radius:8px; margin-bottom:15px; }
+    .student-info { background:#f5f5f5; padding:12px; border-radius:8px; margin-bottom:15px; }
+    .question { border:1px solid #ddd; border-radius:10px; padding:15px; margin-bottom:15px; background:#fafafa; }
+    .question h3 { margin-top:0; margin-bottom:12px; }
+    .section-title { font-size:13px; color:#666; margin-bottom:6px; font-weight:bold; }
+    .reason { background:#fff; border-left:4px solid #6a1b9a; padding:10px; margin-bottom:12px; }
+    .reason-label { font-weight:bold; display:block; margin-bottom:5px; }
+    .score-row { display:grid; grid-template-columns:1fr 120px; gap:10px; align-items:center; margin-bottom:10px; }
+    .score-label { font-weight:bold; }
+    .total { font-size:25px; font-weight:bold; text-align:center; padding:15px; background:#e3f2fd; border-radius:10px; margin:15px 0; }
+    .hidden { display:none; }
+    .preview-img { max-width:100%; max-height:400px; display:block; margin:10px auto; border-radius:8px; }    
+    .hint {color:#666; font-size:13px; margin-top:10px; margin-bottom:12px; line-height:1.5; display:block;}
+    .class-row { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:end; }
+    .class-count { font-size:12px; color:#666; padding:0 4px 16px; white-space:nowrap; }
+    .student-select-wrap { margin-top:4px; }
+    .actions { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; position:sticky; bottom:10px; z-index:10; background:#fff; padding-top:8px; }
+    .actions button { margin-top:0; }
+    .edit-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .badge { display:inline-block; padding:5px 9px; border-radius:20px; background:#e3f2fd; color:#1565c0; font-size:12px; font-weight:bold; margin-bottom:10px; }
+    .score-breakdown { font-size:12px; color:#666; margin:-4px 0 12px; background:#f7f7f7; padding:7px 9px; border-radius:7px; }
+    .similarity-box { display:none; background:#fff8e1; border-left:4px solid #f9a825; padding:12px; border-radius:8px; margin-top:12px; }
+    .similarity-box strong { color:#8a5a00; }
+    .result-status { background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9; padding:11px 12px; border-radius:8px; margin:12px 0 10px; font-weight:bold; font-size:14px; }
+    .result-status small { display:block; font-weight:normal; margin-top:3px; color:#477a4b; }
+    .top-nav { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+    .top-nav button { margin-top:0; background:#e8eef7; color:#174a7e; }
+    .top-nav button.active { background:#1976d2; color:#fff; }
+    .saved-actions { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:12px; }
+    .btn-check { background:#1565c0; color:#fff; }
+    .btn-changelog { background:#546e7a; color:#fff; }
+    .changelog-item { border-left:4px solid #1976d2; padding:12px 14px; margin-bottom:12px; background:#fafafa; border-radius:8px; }
+    .changelog-item .ver { font-weight:bold; color:#1565c0; }
+    .feature-list { margin:8px 0 0 18px; padding:0; line-height:1.6; }
+    .saved-edit-note { background:#fff8e1; border-left:4px solid #f9a825; padding:11px 12px; border-radius:8px; margin:10px 0; font-size:13px; }
+    @media (max-width:600px) { .saved-actions { grid-template-columns:1fr; } }
+    .viewer-question { border:1px solid #ddd; border-radius:10px; padding:15px; margin-bottom:15px; background:#fafafa; }
+    .viewer-answer { white-space:pre-wrap; background:#fff; border:1px solid #e0e0e0; border-radius:8px; padding:11px; max-height:220px; overflow-y:auto; line-height:1.5; }
+    .viewer-reason { white-space:pre-wrap; background:#fff; border-left:4px solid #6a1b9a; padding:10px; border-radius:7px; margin-top:10px; }
+    .viewer-score { font-weight:bold; font-size:18px; margin:8px 0; }
+    .viewer-sim { background:#fff8e1; border-left:4px solid #f9a825; padding:12px; border-radius:8px; margin-top:12px; }
+    .empty-result { background:#fff8e1; color:#795548; padding:12px; border-radius:8px; }
+    .ai-provider { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin:8px 0 12px; }
+    .ai-option { border:1px solid #ccc; border-radius:8px; padding:11px 8px; text-align:center; cursor:pointer; background:#fff; font-weight:bold; }
+    .ai-option input { margin-right:5px; }
+    .ai-option.selected { border-color:#1976d2; background:#e3f2fd; color:#1565c0; }
+    .provider-info { margin-top:8px; font-size:12px; color:#666; }
+    .manual-box { min-height:150px; max-height:280px; overflow-y:auto; resize:vertical; }
+    .manual-tools { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:-8px; margin-bottom:12px; }
+    .manual-tools button { margin-top:0; padding:10px; font-size:13px; }
+    .btn-paste { background:#546e7a; color:#fff; }
+    .btn-clear-manual { background:#9e9e9e; color:#fff; }
+    .project-footer { text-align:center; color:#888; font-size:11px; line-height:1.6; padding:16px 8px 8px; margin:10px 0 4px; border-top:1px solid #e5e5e5; }
+    .project-footer .app-version { font-weight:bold; color:#666; }
+    @media (max-width:600px) {
+      body { padding:8px; font-size:14px; }
+      h1 { font-size:23px; }
+      .subtitle { margin-bottom:16px; }
+      .card { padding:14px; margin-bottom:14px; }
+      .question { padding:12px; margin-bottom:12px; }
+      .question h3 { font-size:17px; }
+      .answer-box { min-height:120px; max-height:170px; }
+      .reason-box { min-height:75px; max-height:120px; }
+      .note-box { min-height:48px; max-height:70px; }
+      .score-row { grid-template-columns:1fr 100px; }
+      .class-row { grid-template-columns:1fr; gap:0; }
+      .class-count { padding:0; margin-top:-8px; margin-bottom:10px; }
+      .actions { grid-template-columns:repeat(3,1fr); gap:6px; }
+      .actions button { padding:11px 6px; font-size:13px; }
+      .edit-actions { grid-template-columns:1fr; }
+      .ai-provider { grid-template-columns:1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>e-Koreksi Essay MUPA</h1>
+  <div class="subtitle">Koreksi Essay Berbasis AI</div>
 
+  <div class="top-nav" style="grid-template-columns:1fr 1fr 1fr;">
+    <button id="navKoreksi" class="active" onclick="showPage('koreksi')">📝 KOREKSI</button>
+    <button id="navHasil" onclick="showPage('hasil')">🔎 PERIKSA</button>
+    <button id="navChangelog" onclick="showPage('changelog')">📚 CHANGELOG</button>
+  </div>
+
+  <div id="pageKoreksi">
+  <div class="card">
+    <div class="section-title">LANGKAH 1</div>
+    <label>Pilih Kelas</label>
+    <div class="class-row">
+      <select id="classSelect"><option value="">Memuat kelas...</option></select>
+      <div id="classCount" class="class-count"></div>
+    </div>
+
+    <div class="student-select-wrap">
+      <div class="section-title">LANGKAH 2</div>
+      <label>Pilih Siswa</label>
+      <select id="studentSelect" disabled><option value="">-- Pilih kelas terlebih dahulu --</option></select>
+    </div>
+
+    <div class="section-title">LANGKAH 3</div>
+    <label>Foto / Scan Jawaban</label>
+    <input type="file" id="imageInput" accept="image/*" capture="environment">
+    <img id="imagePreview" class="preview-img hidden">
+
+    <label>Transkripsi Manual (Opsional)</label>
+    <textarea id="manualText" class="manual-box" placeholder="Jika ingin lebih akurat, tempel/ketik full text jawaban siswa di sini. AI akan membandingkannya dengan foto."></textarea>
+    <div class="hint">Foto tetap menjadi sumber asli. Teks manual hanya sebagai pembanding untuk membantu AI memperjelas tulisan.</div>
+    <div class="manual-tools">
+      <button type="button" class="btn-paste" onclick="tempelManualText()">📋 TEMPEL</button>
+      <button type="button" class="btn-clear-manual" onclick="hapusManualText()">🗑️ HAPUS</button>
+    </div>
+
+    <label>Pilih Mesin AI</label>
+    <div class="ai-provider">
+      <label class="ai-option selected" id="optOpenAI"><input type="radio" name="aiProvider" value="OPENAI" checked> 🔴 OpenAI</label>
+      <label class="ai-option" id="optOCRSpaceOpenAI"><input type="radio" name="aiProvider" value="OCRSPACE_OPENAI"> 🟣 OCR + 🔴 OpenAI</label>
+      <label class="ai-option" id="optGemini"><input type="radio" name="aiProvider" value="GEMINI"> 🟢 Gemini</label>
+      <label class="ai-option" id="optCloudflare"><input type="radio" name="aiProvider" value="CLOUDFLARE"> 🔵 Cloudflare</label>
+      <label class="ai-option" id="optOCRSpaceCloudflare"><input type="radio" name="aiProvider" value="OCRSPACE_CLOUDFLARE"> 🟣 OCR + 🔵 Cloudflare</label>
+    </div>
+    <div class="provider-info">OpenAI = foto + baca + koreksi • OCR + OpenAI = OCR gratis + koreksi OpenAI • Gemini = baca + koreksi • Cloudflare = baca + koreksi • OCR + Cloudflare = OCR gratis + koreksi Cloudflare</div>
+
+    <button class="btn-koreksi" id="btnKoreksi" onclick="koreksiAI()">KOREKSI AI</button>
+    <div class="hint">Sekali proses: AI membaca tulisan sekaligus memberi nilai.</div>
+  </div>
+
+  <div id="loading" class="loading">
+    <div>⏳ AI sedang membaca dan mengoreksi...</div>
+    <div id="processTimer" class="process-timer">Waktu proses: 00:00</div>
+  </div>
+  <div id="error" class="error"></div>
+  <div id="success" class="success"></div>
+  <div id="similarityBox" class="similarity-box"></div>
+
+  <div id="resultCard" class="card hidden">
+    <div class="section-title">HASIL KOREKSI AI</div>
+    <h2>Hasil Baca & Nilai</h2>
+    <div id="studentInfo" class="student-info"></div>
+    <div class="badge" id="modeBadge">Hasil AI — belum diedit</div>
+    <div id="aiInfo" class="provider-info"></div>
+
+    <div class="hint">Jika bacaan AI kurang tepat, tekan <b>EDIT</b>. Di HP kamu juga bisa gunakan tombol <b>📥 TEMPEL</b> untuk memasukkan teks dari clipboard. Setelah diperbaiki, tekan <b>KOREKSI ULANG</b>. Koreksi ulang hanya mengirim teks, bukan foto.</div>
+
+    <div class="question">
+      <h3>Q1 / 35</h3>
+      <label>Jawaban hasil baca AI</label>
+      <textarea id="jawaban1" class="answer-box" readonly></textarea>
+      <div class="edit-tools">
+        <button type="button" onclick="copyText('jawaban1')">📋 SALIN</button>
+        <button type="button" onclick="pasteText('jawaban1')">📥 TEMPEL</button>
+      </div>
+      <div class="score-row">
+        <div class="score-label">Nilai Q1</div>
+        <input type="number" id="s1" min="0" max="35" readonly onchange="hitungTotal()">
+        <div id="break1" class="score-breakdown">Rubrik: a 0/10 • b 0/10 • c 0/15</div>
+      </div>
+      <div class="reason">
+        <span class="reason-label">Alasan</span>
+        <textarea id="alasan1" class="reason-box" readonly></textarea>
+      </div>
+      <label>Catatan singkat</label>
+      <textarea id="catatan1" class="note-box" placeholder="Maksimal 7 kata" readonly></textarea>
+    </div>
+
+    <div class="question">
+      <h3>Q2 / 35</h3>
+      <label>Jawaban hasil baca AI</label>
+      <textarea id="jawaban2" class="answer-box" readonly></textarea>
+      <div class="edit-tools">
+        <button type="button" onclick="copyText('jawaban2')">📋 SALIN</button>
+        <button type="button" onclick="pasteText('jawaban2')">📥 TEMPEL</button>
+      </div>
+      <div class="score-row">
+        <div class="score-label">Nilai Q2</div>
+        <input type="number" id="s2" min="0" max="35" readonly onchange="hitungTotal()">
+        <div id="break2" class="score-breakdown">Rubrik: a 0/10 • b 0/15 • c 0/10</div>
+      </div>
+      <div class="reason">
+        <span class="reason-label">Alasan</span>
+        <textarea id="alasan2" class="reason-box" readonly></textarea>
+      </div>
+      <label>Catatan singkat</label>
+      <textarea id="catatan2" class="note-box" placeholder="Maksimal 7 kata" readonly></textarea>
+    </div>
+
+    <div class="question">
+      <h3>Q3 / 30</h3>
+      <label>Jawaban hasil baca AI</label>
+      <textarea id="jawaban3" class="answer-box" readonly></textarea>
+      <div class="edit-tools">
+        <button type="button" onclick="copyText('jawaban3')">📋 SALIN</button>
+        <button type="button" onclick="pasteText('jawaban3')">📥 TEMPEL</button>
+      </div>
+      <div class="score-row">
+        <div class="score-label">Nilai Q3</div>
+        <input type="number" id="s3" min="0" max="30" readonly onchange="hitungTotal()">
+        <div id="break3" class="score-breakdown">Rubrik: a 0/10 • b 0/10 • c 0/10</div>
+      </div>
+      <div class="reason">
+        <span class="reason-label">Alasan</span>
+        <textarea id="alasan3" class="reason-box" readonly></textarea>
+      </div>
+      <label>Catatan singkat</label>
+      <textarea id="catatan3" class="note-box" placeholder="Maksimal 7 kata" readonly></textarea>
+    </div>
+
+    <div id="total" class="total">TOTAL: 0 / 100</div>
+
+    <div id="resultStatus" class="result-status hidden">✅ KOREKSI AI BERHASIL<small>Silakan periksa hasil sebelum disimpan.</small></div>
+
+    <div class="actions">
+      <button class="btn-edit" id="btnEdit" onclick="modeEdit()">✏️ EDIT</button>
+      <button class="btn-ulang" id="btnUlang" onclick="koreksiUlang()">🔄 ULANGI</button>
+      <button class="btn-simpan" id="btnSimpan" onclick="simpan()">💾 SIMPAN</button>
+    </div>
+
+    <button class="btn-reset" onclick="resetForm()">KOREKSI SISWA BERIKUTNYA</button>
+  </div>
+</div>
+
+  </div>
+
+  <div id="pageHasil" class="hidden">
+    <div class="card">
+      <div class="section-title">PEMERIKSAAN HASIL TERSIMPAN</div>
+      <h2>🔎 Periksa & Edit Hasil</h2>
+      <label>Pilih Kelas</label>
+      <select id="viewClassSelect"><option value="">-- Pilih Kelas --</option></select>
+      <label>Pilih Siswa</label>
+      <select id="viewStudentSelect" disabled><option value="">-- Pilih kelas terlebih dahulu --</option></select>
+      <div id="viewLoading" class="loading">⏳ Memuat hasil...</div>
+      <div id="viewEmpty" class="empty-result hidden">Belum ada hasil tersimpan untuk siswa ini.</div>
+      <div id="viewResult" class="hidden">
+        <div id="viewStudentInfo" class="student-info"></div>
+        <div class="saved-edit-note">📌 <b>Mode laptop:</b> periksa hasil AI, edit teks/transkripsi jika OCR salah, lalu pilih mesin AI di bawah. Setelah itu bisa <b>🔄 AI ULANGI</b> atau <b>💾 SIMPAN PERUBAHAN</b>. Foto asli tetap menjadi sumber pembanding.</div>
+        <label>Pilih Mesin AI untuk AI Ulangi</label>
+        <div class="saved-ai-provider">
+          <label class="saved-ai-option selected" id="savedOptOpenAI"><input type="radio" name="savedAiProvider" value="OPENAI" checked> 🔴 OpenAI</label>
+          <label class="saved-ai-option" id="savedOptOCRSpaceOpenAI"><input type="radio" name="savedAiProvider" value="OCRSPACE_OPENAI"> 🟣 OCR + 🔴 OpenAI</label>
+          <label class="saved-ai-option" id="savedOptGemini"><input type="radio" name="savedAiProvider" value="GEMINI"> 🟢 Gemini</label>
+          <label class="saved-ai-option" id="savedOptCloudflare"><input type="radio" name="savedAiProvider" value="CLOUDFLARE"> 🔵 Cloudflare</label>
+          <label class="saved-ai-option" id="savedOptOCRSpaceCloudflare"><input type="radio" name="savedAiProvider" value="OCRSPACE_CLOUDFLARE"> 🟣 OCR + 🔵 Cloudflare</label>
+        </div>
+        <div class="saved-provider-info">OpenAI = foto + baca + koreksi • OCR + OpenAI = OCR gratis + koreksi OpenAI • Gemini = baca + koreksi • Cloudflare = baca + koreksi • OCR + Cloudflare = OCR gratis + koreksi Cloudflare</div>
+        <div id="savedMessageSuccess" class="saved-message success"></div>
+        <div id="savedMessageError" class="saved-message error"></div>
+        <div id="savedProcess" class="saved-process">⏳ AI sedang memproses ulang...<div id="savedProcessText">Membaca foto asli dan teks yang sudah diperiksa...</div><div id="savedProcessTimer" class="process-timer">Waktu proses: 00:00</div><div class="saved-progress-bar"><span></span></div></div>
+        <div id="viewPhotoWrap" class="viewer-question hidden">
+          <h3>📷 Foto Jawaban Asli</h3>
+          <img id="viewPhoto" class="preview-img" alt="Foto jawaban">
+          <a id="viewPhotoLink" target="_blank" rel="noopener">Buka foto di Drive</a>
+        </div>
+        <div class="question">
+          <h3>Q1 / 35</h3>
+          <label>Transkripsi / Jawaban</label>
+          <textarea id="viewJawaban1" class="answer-box" readonly></textarea>
+          <div class="score-row"><div class="score-label">Nilai Q1</div><input type="number" id="viewS1" min="0" max="35" readonly></div>
+          <label>Alasan</label><textarea id="viewAlasan1" class="reason-box" readonly></textarea>
+          <label>Catatan</label><textarea id="viewCatatan1" class="note-box" readonly></textarea>
+        </div>
+        <div class="question">
+          <h3>Q2 / 35</h3>
+          <label>Transkripsi / Jawaban</label>
+          <textarea id="viewJawaban2" class="answer-box" readonly></textarea>
+          <div class="score-row"><div class="score-label">Nilai Q2</div><input type="number" id="viewS2" min="0" max="35" readonly></div>
+          <label>Alasan</label><textarea id="viewAlasan2" class="reason-box" readonly></textarea>
+          <label>Catatan</label><textarea id="viewCatatan2" class="note-box" readonly></textarea>
+        </div>
+        <div class="question">
+          <h3>Q3 / 30</h3>
+          <label>Transkripsi / Jawaban</label>
+          <textarea id="viewJawaban3" class="answer-box" readonly></textarea>
+          <div class="score-row"><div class="score-label">Nilai Q3</div><input type="number" id="viewS3" min="0" max="30" readonly></div>
+          <label>Alasan</label><textarea id="viewAlasan3" class="reason-box" readonly></textarea>
+          <label>Catatan</label><textarea id="viewCatatan3" class="note-box" readonly></textarea>
+        </div>
+        <div id="viewTotal" class="total">TOTAL: 0 / 100</div>
+        <div id="viewMeta" class="hint" style="text-align:center;"></div>
+        <div id="viewSimilarity" class="viewer-sim hidden"></div>
+        <div class="saved-actions">
+          <button class="btn-edit" id="btnViewEdit" onclick="modeEditSaved()">✏️ EDIT TEKS/NILAI</button>
+          <button class="btn-ulang" id="btnViewRedo" onclick="koreksiUlangSavedUI()">🔄 AI ULANGI</button>
+          <button class="btn-simpan" id="btnViewSave" onclick="simpanSavedUI()">💾 SIMPAN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pageChangelog" class="hidden">
+    <div class="card">
+      <div class="section-title">RIWAYAT PEMBARUAN</div>
+      <h2>📚 Changelog & Fitur</h2>
+      <div class="changelog-item">
+        <div class="ver">v6.1.0 — 20 September 2026</div>
+        <ul class="feature-list">
+          <li>Tab <b>🔎 Periksa</b> untuk mengecek hasil siswa yang sudah tersimpan dari laptop.</li>
+          <li>Transkripsi hasil AI/OCR dapat diedit sebelum disimpan ulang.</li>
+          <li>Tersedia <b>🔄 AI Ulangi</b> menggunakan foto asli + teks yang sudah diperiksa.</li>
+          <li>Perubahan hasil tersimpan dapat disimpan kembali tanpa membuat foto baru.</li>
+          <li>Tab <b>📚 Changelog</b> untuk melihat riwayat pembaruan dan fitur.</li>
+          <li>Alur kerja dipisahkan: HP untuk foto/koreksi cepat, laptop untuk pemeriksaan dan finalisasi.</li>
+        </ul>
+      </div>
+      <div class="changelog-item">
+        <div class="ver">v6.0.0 — 20 September 2026</div>
+        <ul class="feature-list">
+          <li>5 pilihan mesin: OpenAI, OCR + OpenAI, Gemini, Cloudflare, dan OCR + Cloudflare.</li>
+          <li>Foto jawaban menjadi sumber utama, dengan opsi teks pembanding manual.</li>
+          <li>Penilaian Q1/Q2/Q3 memakai subrubrik dan total 100.</li>
+          <li>Hasil koreksi dan foto disimpan ke Google Sheets/Drive.</li>
+          <li>Deteksi kemiripan jawaban untuk pemeriksaan lanjutan.</li>
+          <li>Tampilan responsif untuk HP dan desktop.</li>
+        </ul>
+      </div>
+      <div class="changelog-item">
+        <div class="ver">Catatan penggunaan</div>
+        <ul class="feature-list">
+          <li><b>Foto asli</b> tetap dipertahankan sebagai sumber pemeriksaan.</li>
+          <li><b>Edit teks</b> digunakan untuk memperbaiki hasil baca/OCR yang keliru.</li>
+          <li><b>AI Ulangi</b> dapat dipakai bila hasil awal terasa aneh atau kurang sesuai.</li>
+          <li><b>Edit manual</b> tetap tersedia untuk keputusan akhir guru.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+<footer class="project-footer">
+  <div class="app-version">e-Koreksi Essay MUPA v6.1.0</div>
+  <div>© 2026 Sigit Prabowo</div>
+  <div>Update terakhir: 20 September 2026</div>
+</footer>
+
+<script>
+let students = [];
+let currentPayload = null;
+let currentResult = null;
+let editMode = false;
+let saved = false;
+let savedCurrent = null;
+let savedEditMode = false;
+let processTimer = null;
+let processStartMs = 0;
+let savedProgressTimer = null;
+let savedProgressStage = 0;
+
+
+function showPage(page) {
+  const isK = page === 'koreksi';
+  const isH = page === 'hasil';
+  document.getElementById('pageKoreksi').classList.toggle('hidden', !isK);
+  document.getElementById('pageHasil').classList.toggle('hidden', !isH);
+  document.getElementById('pageChangelog').classList.toggle('hidden', page !== 'changelog');
+  document.getElementById('navKoreksi').classList.toggle('active', isK);
+  document.getElementById('navHasil').classList.toggle('active', isH);
+  document.getElementById('navChangelog').classList.toggle('active', page === 'changelog');
+  if (isH) loadViewClasses();
+}
+
+
+function loadViewClasses() {
+  google.script.run.withSuccessHandler(function(data){
+    const s=document.getElementById('viewClassSelect');
+    const current=s.value;
+    s.innerHTML='<option value="">-- Pilih Kelas --</option>';
+    (data||[]).forEach(function(k){ const o=document.createElement('option'); o.value=k; o.textContent=k; s.appendChild(o); });
+    if(current) s.value=current;
+  }).withFailureHandler(function(err){showError(err.message||err);}).getClasses();
+}
+
+document.getElementById('viewClassSelect').addEventListener('change', function(){
+  const cls=this.value, s=document.getElementById('viewStudentSelect');
+  clearViewResult();
+  if(!cls){ s.disabled=true; s.innerHTML='<option value="">-- Pilih kelas terlebih dahulu --</option>'; return; }
+  s.disabled=true; s.innerHTML='<option value="">Memuat siswa...</option>';
+  google.script.run.withSuccessHandler(function(data){
+    s.innerHTML='<option value="">-- Pilih Siswa --</option>';
+    (data||[]).forEach(function(x){ const o=document.createElement('option'); o.value=x.no; o.textContent=x.no+' - '+x.nama; s.appendChild(o); });
+    s.disabled=false;
+  }).withFailureHandler(function(err){showError(err.message||err);}).getStudentsByClass(cls);
+});
+
+document.getElementById('viewStudentSelect').addEventListener('change', function(){
+  clearViewResult();
+  if(this.value) loadSavedResult(this.value);
+});
+
+function clearViewResult(){
+  clearSavedMessages();
+  savedCurrent=null; savedEditMode=false;
+  document.getElementById('viewResult').classList.add('hidden');
+  document.getElementById('viewEmpty').classList.add('hidden');
+  document.getElementById('viewPhotoWrap').classList.add('hidden');
+  document.getElementById('viewSimilarity').classList.add('hidden');
+}
+function loadSavedResult(no){
+  document.getElementById('viewLoading').style.display='block';
+  google.script.run.withSuccessHandler(function(data){
+    document.getElementById('viewLoading').style.display='none';
+    if(!data || !data.found){ document.getElementById('viewEmpty').classList.remove('hidden'); return; }
+    savedCurrent = data;
+    savedEditMode = false;
+    renderSavedResult(data);
+  }).withFailureHandler(function(err){ document.getElementById('viewLoading').style.display='none'; showError(err.message||err); }).getSavedResult(no);
+}
+
+function renderSavedResult(data){
+  const s=data.student, r=data.result;
+  document.getElementById('viewStudentInfo').innerHTML='<b>'+escapeHtml(s.nama)+'</b><br>'+escapeHtml(s.kelas)+'<br>No Peserta: '+escapeHtml(s.no)+'<br>NIS: '+escapeHtml(s.nis||'-')+'<br>Status: '+escapeHtml(r.status||'-');
+  const photo=document.getElementById('viewPhoto'), wrap=document.getElementById('viewPhotoWrap'), link=document.getElementById('viewPhotoLink');
+  if(r.idFile){ photo.src='https://drive.google.com/thumbnail?id='+encodeURIComponent(r.idFile)+'&sz=w1200'; link.href=r.linkFoto||('https://drive.google.com/file/d/'+encodeURIComponent(r.idFile)+'/view'); wrap.classList.remove('hidden'); }
+  else if(r.linkFoto){ photo.src=r.linkFoto; link.href=r.linkFoto; wrap.classList.remove('hidden'); }
+  else { wrap.classList.add('hidden'); }
+  setValue('viewJawaban1',r.jawaban1); setValue('viewJawaban2',r.jawaban2); setValue('viewJawaban3',r.jawaban3);
+  setValue('viewS1',r.s1); setValue('viewS2',r.s2); setValue('viewS3',r.s3);
+  setValue('viewAlasan1',r.alasan1); setValue('viewAlasan2',r.alasan2); setValue('viewAlasan3',r.alasan3);
+  setValue('viewCatatan1',r.catatan1); setValue('viewCatatan2',r.catatan2); setValue('viewCatatan3',r.catatan3);
+  setViewReadOnly(!savedEditMode);
+  document.getElementById('viewTotal').textContent='TOTAL: '+((Number(r.s1)||0)+(Number(r.s2)||0)+(Number(r.s3)||0))+' / 100';
+  document.getElementById('viewMeta').innerHTML='🤖 '+escapeHtml(r.provider||'-')+' • ⏱️ '+escapeHtml(r.processTime||0)+' detik';
+  setSavedProvider(r.provider||'OPENAI');
+  const sim=document.getElementById('viewSimilarity');
+  if(data.similarity && data.similarity.length){
+    let h='<b>⚠️ Jawaban sangat mirip</b><br><small>Ini hanya tanda untuk diperiksa, bukan otomatis berarti mencontek.</small><ul style="margin:8px 0 0 18px;padding:0;">';
+    data.similarity.forEach(function(x){h+='<li>'+escapeHtml(x.nama2)+' ('+escapeHtml(x.kelas2)+') — '+escapeHtml(x.soal)+' <b>'+escapeHtml(x.score)+'</b> — '+escapeHtml(x.status)+'</li>';});
+    h+='</ul>'; sim.innerHTML=h; sim.classList.remove('hidden');
+  } else sim.classList.add('hidden');
+  document.getElementById('viewResult').classList.remove('hidden');
+}
+
+function setViewReadOnly(ro){
+  ['viewJawaban1','viewJawaban2','viewJawaban3','viewS1','viewS2','viewS3','viewAlasan1','viewAlasan2','viewAlasan3','viewCatatan1','viewCatatan2','viewCatatan3'].forEach(function(id){document.getElementById(id).readOnly=ro;});
+  // Mode baca: hanya tombol EDIT yang aktif.
+  // Mode edit: tombol AI ULANGI dan SIMPAN yang aktif.
+  document.getElementById('btnViewEdit').disabled = !ro;
+  document.getElementById('btnViewRedo').disabled = ro;
+  document.getElementById('btnViewSave').disabled = ro;
+}
+
+function modeEditSaved(){
+  if(!savedCurrent) return;
+  savedEditMode=true;
+  setViewReadOnly(false);
+  document.getElementById('btnViewEdit').textContent='✏️ SEDANG EDIT';
+  document.getElementById('viewJawaban1').focus();
+}
+
+function getSavedJawabanUI(){
+  return {jawaban1:document.getElementById('viewJawaban1').value.trim(),jawaban2:document.getElementById('viewJawaban2').value.trim(),jawaban3:document.getElementById('viewJawaban3').value.trim()};
+}
+
+function getSavedResultUI(){
+  const r=savedCurrent.result||{};
+  return {
+    s1:Number(document.getElementById('viewS1').value)||0,s2:Number(document.getElementById('viewS2').value)||0,s3:Number(document.getElementById('viewS3').value)||0,
+    alasan1:document.getElementById('viewAlasan1').value.trim(),alasan2:document.getElementById('viewAlasan2').value.trim(),alasan3:document.getElementById('viewAlasan3').value.trim(),
+    catatan1:document.getElementById('viewCatatan1').value.trim(),catatan2:document.getElementById('viewCatatan2').value.trim(),catatan3:document.getElementById('viewCatatan3').value.trim(),
+    q1a:r.q1a||0,q1b:r.q1b||0,q1c:r.q1c||0,q2a:r.q2a||0,q2b:r.q2b||0,q2c:r.q2c||0,q3a:r.q3a||0,q3b:r.q3b||0,q3c:r.q3c||0,
+    status:'EDIT MANUAL',provider:r.provider||'OPENAI',neurons:r.neurons||0,processTime:r.processTime||0
+  };
+}
+
+function startSavedProgress(){
+  const box=document.getElementById('savedProcess');
+  const text=document.getElementById('savedProcessText');
+  if(box) box.style.display='block';
+  savedProgressStage=0;
+  const stages=[
+    'Membaca foto asli dan teks yang sudah diperiksa...',
+    'AI sedang membandingkan hasil baca dengan foto asli...',
+    'AI sedang menilai jawaban berdasarkan rubrik...',
+    'AI sedang menyusun hasil koreksi...'
+  ];
+  if(text) text.textContent=stages[0];
+  if(savedProgressTimer) clearInterval(savedProgressTimer);
+  savedProgressTimer=setInterval(function(){
+    savedProgressStage=(savedProgressStage+1)%stages.length;
+    if(text) text.textContent=stages[savedProgressStage];
+  },2200);
+  const timer=document.getElementById('savedProcessTimer');
+  if(timer) timer.textContent='Waktu proses: 00:00';
+}
+
+function stopSavedProgress(serverSeconds){
+  if(savedProgressTimer){clearInterval(savedProgressTimer);savedProgressTimer=null;}
+  const box=document.getElementById('savedProcess');
+  if(box) box.style.display='none';
+  const timer=document.getElementById('savedProcessTimer');
+  if(timer && serverSeconds!=null && Number(serverSeconds)>0){
+    timer.textContent='Waktu proses: '+Number(serverSeconds).toFixed(1)+' detik';
+  }
+}
+
+function setSavedBusy(show){
+  document.getElementById('btnViewEdit').disabled=show;
+  document.getElementById('btnViewRedo').disabled=show;
+  document.getElementById('btnViewSave').disabled=show;
+}
+
+function clearSavedMessages(){
+  const ok=document.getElementById('savedMessageSuccess');
+  const er=document.getElementById('savedMessageError');
+  if(ok){ok.style.display='none';ok.textContent='';}
+  if(er){er.style.display='none';er.textContent='';}
+}
+function showSavedSuccess(message){
+  const el=document.getElementById('savedMessageSuccess');
+  if(el){el.textContent='✅ '+message;el.style.display='block';}
+}
+function showSavedError(message){
+  const el=document.getElementById('savedMessageError');
+  if(el){el.textContent='❌ '+message;el.style.display='block';}
+}
+function getSavedProvider(){
+  return (document.querySelector('input[name="savedAiProvider"]:checked')||{}).value || (savedCurrent&&savedCurrent.result&&savedCurrent.result.provider) || 'OPENAI';
+}
+function setSavedProvider(provider){
+  provider=String(provider||'OPENAI').toUpperCase();
+  const radio=document.querySelector('input[name="savedAiProvider"][value="'+provider+'"]');
+  if(radio) radio.checked=true;
+  ['OpenAI','OCRSpaceOpenAI','Gemini','Cloudflare','OCRSpaceCloudflare'].forEach(function(x){
+    const el=document.getElementById('savedOpt'+x); if(el) el.classList.remove('selected');
+  });
+  const map={OPENAI:'savedOptOpenAI',OCRSPACE_OPENAI:'savedOptOCRSpaceOpenAI',GEMINI:'savedOptGemini',CLOUDFLARE:'savedOptCloudflare',OCRSPACE_CLOUDFLARE:'savedOptOCRSpaceCloudflare'};
+  const selected=document.getElementById(map[provider]||'savedOptOpenAI');
+  if(selected) selected.classList.add('selected');
+}
+
+function koreksiUlangSavedUI(){
+  if(!savedCurrent) return;
+  if(!savedEditMode) modeEditSaved();
+  const jawaban=getSavedJawabanUI();
+  if(!jawaban.jawaban1&&!jawaban.jawaban2&&!jawaban.jawaban3){showSavedError('Transkripsi belum tersedia.');return;}
+
+  clearMessages();
+  clearSavedMessages();
+  const provider=getSavedProvider();
+  showSavedSuccess('AI sedang bekerja dengan mode '+provider+'...');
+  setSavedBusy(true);
+  startSavedProgress();
+
+  google.script.run
+    .withSuccessHandler(function(data){
+      stopSavedProgress(data.result&&data.result.processTime);
+      setSavedBusy(false);
+      savedCurrent.result=data.result;
+      savedCurrent.result.idFile=savedCurrent.idFile;
+      savedCurrent.result.linkFoto=savedCurrent.result.linkFoto||'';
+      setSavedProvider(data.result&&data.result.provider || provider);
+      savedEditMode=false;
+      renderSavedResult(savedCurrent);
+      showSavedSuccess('AI ulangi berhasil. Hasil baru siap diperiksa dan disimpan.');
+    })
+    .withFailureHandler(function(err){
+      stopSavedProgress();
+      setSavedBusy(false);
+      showSavedError(err.message||err);
+    })
+    .koreksiUlangTersimpan({
+      noPeserta:savedCurrent.student.no,
+      jawaban:jawaban,
+      provider:provider
+    });
+}
+
+function simpanSavedUI(){
+  if(!savedCurrent) return;
+  const result=getSavedResultUI(), jawaban=getSavedJawabanUI();
+  if(result.s1<0||result.s1>35||result.s2<0||result.s2>35||result.s3<0||result.s3>30){showError('Nilai melebihi batas rubrik.');return;}
+  clearMessages(); setBusy(true);
+  google.script.run.withSuccessHandler(function(data){
+    setBusy(false); savedCurrent.result=data.result; savedCurrent.result.linkFoto=data.linkFoto; savedCurrent.result.idFile=data.idFile; savedCurrent.similarity=data.similarity||[]; savedEditMode=false; renderSavedResult(savedCurrent); showSuccess('Perubahan hasil berhasil disimpan.');
+  }).withFailureHandler(function(err){setBusy(false);showError(err.message||err);})
+  .updateSavedGrade({noPeserta:savedCurrent.student.no,jawaban:jawaban,result:result});
+}
+
+function loadClasses() {
+  google.script.run
+    .withSuccessHandler(function(data) {
+      const select = document.getElementById('classSelect');
+      select.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+      (data || []).forEach(function(kelas) {
+        const option = document.createElement('option');
+        option.value = kelas;
+        option.textContent = kelas;
+        select.appendChild(option);
+      });
+    })
+    .withFailureHandler(function(err) { showError(err.message || err); })
+    .getClasses();
+}
+
+function loadStudentsByClass(kelas) {
+  const select = document.getElementById('studentSelect');
+  const count = document.getElementById('classCount');
+  students = [];
+  select.disabled = true;
+  select.innerHTML = '<option value="">Memuat siswa...</option>';
+  count.textContent = '';
+
+  if (!kelas) {
+    select.innerHTML = '<option value="">-- Pilih kelas terlebih dahulu --</option>';
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(function(data) {
+      students = data || [];
+      select.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+      students.forEach(function(s) {
+        const option = document.createElement('option');
+        option.value = s.no;
+        option.textContent = s.no + ' - ' + s.nama;
+        select.appendChild(option);
+      });
+      select.disabled = false;
+      count.textContent = students.length + ' siswa';
+    })
+    .withFailureHandler(function(err) {
+      select.innerHTML = '<option value="">Gagal memuat siswa</option>';
+      showError(err.message || err);
+    })
+    .getStudentsByClass(kelas);
+}
+
+function clearForStudentChange() {
+  currentPayload = null;
+  currentResult = null;
+  editMode = false;
+  saved = false;
+  document.getElementById('imageInput').value = '';
+  document.getElementById('manualText').value = '';
+  const preview = document.getElementById('imagePreview');
+  preview.src = '';
+  preview.classList.add('hidden');
+  document.getElementById('resultCard').classList.add('hidden');
+  document.getElementById('resultStatus').classList.add('hidden');
+  document.getElementById('similarityBox').style.display='none';
+  document.getElementById('btnSimpan').disabled = false;
+  setReadOnly(true);
+  clearMessages();
+}
+
+document.getElementById('classSelect').addEventListener('change', function() {
+  clearForStudentChange();
+  loadStudentsByClass(this.value);
+});
+
+document.getElementById('studentSelect').addEventListener('change', clearForStudentChange);
+
+document.getElementById('imageInput').addEventListener('change', function() {
+  const file = this.files[0];
+  const img = document.getElementById('imagePreview');
+  if (!file) { img.classList.add('hidden'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e) { img.src = e.target.result; img.classList.remove('hidden'); };
+  reader.readAsDataURL(file);
+});
+
+
+async function compressImageForAI(file) {
+  const MAX_BYTES = 1350000; // margin di bawah batas 1.5 MB
+  const MAX_SIDE = 1800;
+
+  const original = await fileToDataURL(file);
+
+  if (file.size <= MAX_BYTES && file.type === 'image/jpeg') {
+    return original;
+  }
+
+  const img = new Image();
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
+    img.src = original;
+  });
+
+  let width = img.naturalWidth;
+  let height = img.naturalHeight;
+
+  if (Math.max(width, height) > MAX_SIDE) {
+    const scale = MAX_SIDE / Math.max(width, height);
+    width = Math.round(width * scale);
+    height = Math.round(height * scale);
+  }
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', {alpha:false});
+  let quality = 0.72;
+  let result = '';
+
+  for (let attempt = 0; attempt < 10; attempt++) {
+    canvas.width = width;
+    canvas.height = height;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+    ctx.drawImage(img, 0, 0, width, height);
+
+    result = canvas.toDataURL('image/jpeg', quality);
+
+    if (dataUrlToBytes_(result) <= MAX_BYTES) return result;
+
+    if (quality > 0.42) {
+      quality -= 0.06;
+    } else {
+      width = Math.round(width * 0.85);
+      height = Math.round(height * 0.85);
+    }
+  }
+
+  return result;
+}
+
+function dataUrlToBytes_(dataUrl) {
+  const comma = dataUrl.indexOf(',');
+  if (comma < 0) return 0;
+  return Math.floor((dataUrl.length - comma - 1) * 3 / 4);
+}
+
+function fileToDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function tempelManualText() {
+  const el = document.getElementById('manualText');
+  try {
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        el.value = text;
+        el.focus();
+        showSuccess('Teks manual berhasil ditempel.');
+      } else {
+        showError('Clipboard kosong.');
+      }
+    } else {
+      const text = window.prompt('Tempel teks jawaban siswa di sini:');
+      if (text !== null) { el.value = text; el.focus(); }
+    }
+  } catch (err) {
+    const text = window.prompt('Akses clipboard ditolak. Tempel teks jawaban siswa di sini:');
+    if (text !== null) { el.value = text; el.focus(); }
+  }
+}
+
+function hapusManualText() {
+  document.getElementById('manualText').value = '';
+  document.getElementById('manualText').focus();
+}
+
+function koreksiAI() {
+  clearMessages();
+  const noPeserta = document.getElementById('studentSelect').value;
+  const file = document.getElementById('imageInput').files[0];
+
+  if (!noPeserta) { showError('Silakan pilih siswa terlebih dahulu.'); return; }
+  if (!file) { showError('Silakan pilih atau foto lembar jawaban.'); return; }
+
+  setBusy(true);
+  startProcessTimer();
+
+  compressImageForAI(file)
+    .then(function(dataUrl) {
+      const provider =
+        document.querySelector('input[name="aiProvider"]:checked')?.value || 'OPENAI';
+
+      currentPayload = {
+        noPeserta: noPeserta,
+        imageBase64: dataUrl.split(',')[1],
+        mimeType: 'image/jpeg',
+        provider: provider,
+        manualText: document.getElementById('manualText').value.trim()
+      };
+
+      google.script.run
+        .withSuccessHandler(function(data) {
+          stopProcessTimer(data.result && data.result.processTime);
+          setBusy(false);
+          currentResult = data.result;
+          editMode = false;
+          saved = false;
+          tampilkanHasil(data);
+          setResultStatus(
+            '✅ KOREKSI AI BERHASIL',
+            'Silakan periksa hasil sebelum disimpan.'
+          );
+        })
+        .withFailureHandler(function(err) {
+          stopProcessTimer();
+          setBusy(false);
+          showError(err.message || err);
+        })
+        .koreksiAI(currentPayload);
+    })
+    .catch(function(err) {
+      stopProcessTimer();
+      setBusy(false);
+      showError('Gagal menyiapkan foto: ' + (err.message || err));
+    });
+}
+
+function tampilkanHasil(data) {
+  const student = data.student;
+  const result = data.result;
+  document.getElementById('studentInfo').innerHTML = '<b>' + escapeHtml(student.nama) + '</b><br>' + escapeHtml(student.kelas) + '<br>No Peserta: ' + escapeHtml(student.no) + '<br>NIS: ' + escapeHtml(student.nis || '-');
+  setValue('jawaban1', result.jawaban1); setValue('jawaban2', result.jawaban2); setValue('jawaban3', result.jawaban3);
+  setValue('s1', result.s1); setValue('s2', result.s2); setValue('s3', result.s3);
+  document.getElementById('break1').textContent = 'Rubrik: a ' + (result.q1a||0) + '/10 • b ' + (result.q1b||0) + '/10 • c ' + (result.q1c||0) + '/15';
+  document.getElementById('break2').textContent = 'Rubrik: a ' + (result.q2a||0) + '/10 • b ' + (result.q2b||0) + '/15 • c ' + (result.q2c||0) + '/10';
+  document.getElementById('break3').textContent = 'Rubrik: a ' + (result.q3a||0) + '/10 • b ' + (result.q3b||0) + '/10 • c ' + (result.q3c||0) + '/10';
+  setValue('alasan1', result.alasan1); setValue('alasan2', result.alasan2); setValue('alasan3', result.alasan3);
+  setValue('catatan1', result.catatan1); setValue('catatan2', result.catatan2); setValue('catatan3', result.catatan3);
+  setReadOnly(true);
+  document.getElementById('modeBadge').textContent = 'Hasil AI — belum diedit';
+  const provider = String(result.provider || currentPayload?.provider || 'OPENAI').toUpperCase();
+  currentPayload.provider = provider;
+  const neurons = Number(result.neurons || 0);
+  const hasManual = Boolean(currentPayload && currentPayload.manualText);
+  if (provider === 'CLOUDFLARE') {
+    document.getElementById('aiInfo').textContent =
+      'Mesin: Cloudflare Vision + Text' + (hasManual ? ' + teks manual pembanding' : '') + (neurons ? ' • Neurons: ' + neurons.toFixed(2) : '');
+  } else if (provider === 'OCRSPACE_OPENAI') {
+    document.getElementById('aiInfo').textContent =
+      'Mesin: OCR.space Engine 3 + OpenAI Text' + (hasManual ? ' + teks manual pembanding' : '');
+  } else if (provider === 'OCRSPACE_CLOUDFLARE') {
+    document.getElementById('aiInfo').textContent =
+      'Mesin: OCR.space Engine 3 + Cloudflare Text' + (hasManual ? ' + teks manual pembanding' : '') + (neurons ? ' • Neurons: ' + neurons.toFixed(2) : '');
+  } else if (provider === 'OPENAI') {
+    document.getElementById('aiInfo').textContent = 'Mesin: OpenAI gpt-5.6-luna' + (hasManual ? ' + teks manual pembanding' : '');
+  } else {
+    document.getElementById('aiInfo').textContent = 'Mesin: Gemini' + (hasManual ? ' + teks manual pembanding' : '');
+  }
+  hitungTotal();
+  document.getElementById('resultCard').classList.remove('hidden');
+  document.getElementById('resultCard').scrollIntoView({behavior:'smooth'});
+}
+
+function modeEdit() {
+  if (saved) return;
+  editMode = true;
+  setReadOnly(false);
+  document.getElementById('modeBadge').textContent = 'Mode EDIT — periksa jawaban dan nilai';
+  document.getElementById('jawaban1').focus();
+}
+
+function koreksiUlang() {
+  clearMessages();
+  if (!currentPayload) { showError('Belum ada hasil koreksi.'); return; }
+  if (!editMode) { showError('Tekan EDIT terlebih dahulu jika ingin mengubah hasil baca.'); return; }
+  const jawaban = getJawaban();
+  if (!jawaban.jawaban1 && !jawaban.jawaban2 && !jawaban.jawaban3) { showError('Jawaban belum tersedia.'); return; }
+  setBusy(true);
+  startProcessTimer();
+  google.script.run
+    .withSuccessHandler(function(data) {
+      stopProcessTimer(data.result && data.result.processTime);
+      setBusy(false);
+      currentResult = data.result;
+      editMode = false;
+      tampilkanHasil(data);
+      document.getElementById('modeBadge').textContent = 'Hasil koreksi ulang — siap disimpan';
+      setResultStatus('🔄 KOREKSI ULANG BERHASIL', 'Hasil baru sudah dihitung dari teks yang diperbaiki.');
+    })
+    .withFailureHandler(function(err) { stopProcessTimer(); setBusy(false); showError(err.message || err); })
+    .koreksiUlang({ noPeserta: currentPayload.noPeserta, jawaban: jawaban, provider: currentPayload.provider || 'OPENAI' });
+}
+
+function getJawaban() {
+  return {
+    jawaban1: document.getElementById('jawaban1').value.trim(),
+    jawaban2: document.getElementById('jawaban2').value.trim(),
+    jawaban3: document.getElementById('jawaban3').value.trim()
+  };
+}
+
+function hitungTotal() {
+  const total = (Number(document.getElementById('s1').value)||0) + (Number(document.getElementById('s2').value)||0) + (Number(document.getElementById('s3').value)||0);
+  document.getElementById('total').textContent = 'TOTAL: ' + total + ' / 100';
+}
+
+function simpan() {
+  clearMessages();
+  if (!currentPayload || !currentResult) { showError('Belum ada hasil koreksi.'); return; }
+  const result = {
+    s1: Number(document.getElementById('s1').value)||0,
+    s2: Number(document.getElementById('s2').value)||0,
+    s3: Number(document.getElementById('s3').value)||0,
+    alasan1: document.getElementById('alasan1').value.trim(),
+    alasan2: document.getElementById('alasan2').value.trim(),
+    alasan3: document.getElementById('alasan3').value.trim(),
+    catatan1: document.getElementById('catatan1').value.trim(),
+    catatan2: document.getElementById('catatan2').value.trim(),
+    catatan3: document.getElementById('catatan3').value.trim(),
+    q1a: Number(currentResult.q1a)||0, q1b: Number(currentResult.q1b)||0, q1c: Number(currentResult.q1c)||0,
+    q2a: Number(currentResult.q2a)||0, q2b: Number(currentResult.q2b)||0, q2c: Number(currentResult.q2c)||0,
+    q3a: Number(currentResult.q3a)||0, q3b: Number(currentResult.q3b)||0, q3c: Number(currentResult.q3c)||0,
+    status: editMode ? 'EDIT MANUAL' : 'OK',
+    provider: currentResult.provider || currentPayload.provider || 'OPENAI',
+    neurons: Number(currentResult.neurons) || 0,
+    processTime: Number(currentResult.processTime) || 0
+  };
+  if (result.s1 < 0 || result.s1 > 35) { showError('Nilai Q1 harus 0–35.'); return; }
+  if (result.s2 < 0 || result.s2 > 35) { showError('Nilai Q2 harus 0–35.'); return; }
+  if (result.s3 < 0 || result.s3 > 30) { showError('Nilai Q3 harus 0–30.'); return; }
+  const jawaban = getJawaban();
+  setBusy(true);
+  document.getElementById('btnSimpan').disabled = true;
+  google.script.run
+    .withSuccessHandler(function(data) {
+      setBusy(false); saved = true; editMode = false; setReadOnly(true);
+      showSuccess('Nilai, jawaban, alasan, catatan, dan foto berhasil disimpan.');
+      document.getElementById('modeBadge').textContent = 'Tersimpan';
+      setResultStatus('💾 DATA BERHASIL DISIMPAN', 'Hasil sudah tersimpan. Silakan lanjut ke siswa berikutnya.');
+      tampilkanKemiripan(data.similarity || []);
+    })
+    .withFailureHandler(function(err) { setBusy(false); document.getElementById('btnSimpan').disabled = false; showError(err.message || err); })
+    .saveGrade({ noPeserta: currentPayload.noPeserta, imageBase64: currentPayload.imageBase64, mimeType: currentPayload.mimeType, jawaban: jawaban, result: result });
+}
+
+function tampilkanKemiripan(items) {
+  const box=document.getElementById('similarityBox');
+  if(!items || !items.length){ box.style.display='none'; return; }
+  let html='<strong>⚠️ Ditemukan jawaban yang sangat mirip</strong><br><small>Ini hanya tanda untuk diperiksa, bukan otomatis berarti mencontek.</small><ul style="margin:8px 0 0 18px;padding:0;">';
+  items.forEach(function(x){ html += '<li><b>'+escapeHtml(x.nama2)+'</b> ('+escapeHtml(x.kelas2)+') — '+escapeHtml(x.soal)+' <b>'+x.score+'%</b></li>'; });
+  html+='</ul>'; box.innerHTML=html; box.style.display='block';
+}
+
+function copyText(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const text = el.value || '';
+
+  if (!text) {
+    showError('Tidak ada teks untuk disalin.');
+    return;
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(function(){ showSuccess('Teks berhasil disalin.'); })
+      .catch(function(){
+        el.focus();
+        el.select();
+        document.execCommand('copy');
+        showSuccess('Teks berhasil disalin.');
+      });
+  } else {
+    el.focus();
+    el.select();
+    document.execCommand('copy');
+    showSuccess('Teks berhasil disalin.');
+  }
+}
+
+function pasteText(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  if (el.readOnly) {
+    showError('Tekan EDIT terlebih dahulu sebelum menempelkan teks.');
+    return;
+  }
+
+  if (!navigator.clipboard || !navigator.clipboard.readText) {
+    showError('Browser tidak mengizinkan akses clipboard. Tekan lama pada kotak teks lalu pilih Tempel.');
+    return;
+  }
+
+  navigator.clipboard.readText()
+    .then(function(text){
+      if (!text) {
+        showError('Clipboard kosong.');
+        return;
+      }
+      el.value = text;
+      el.dispatchEvent(new Event('input', {bubbles:true}));
+      showSuccess('Teks berhasil ditempel.');
+    })
+    .catch(function(){
+      showError('Akses clipboard ditolak. Tekan lama pada kotak teks lalu pilih Tempel.');
+    });
+}
+
+function escapeHtml(v){ return String(v==null?'':v).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;',"\"":'&quot;'}[c];}); }
+
+function setResultStatus(title, detail) {
+  const el = document.getElementById('resultStatus');
+  el.innerHTML = escapeHtml(title) + '<small>' + escapeHtml(detail) + '</small>';
+  el.classList.remove('hidden');
+}
+function setReadOnly(ro) {
+  ['jawaban1','jawaban2','jawaban3','s1','s2','s3','alasan1','alasan2','alasan3','catatan1','catatan2','catatan3'].forEach(function(id){ document.getElementById(id).readOnly = ro; });
+}
+function setValue(id, value) { document.getElementById(id).value = value == null ? '' : value; }
+
+function formatElapsed(ms) {
+  const sec = Math.floor(ms / 1000);
+  const m = String(Math.floor(sec / 60)).padStart(2,'0');
+  const s = String(sec % 60).padStart(2,'0');
+  return m + ':' + s;
+}
+
+function startProcessTimer() {
+  stopProcessTimer();
+  processStartMs = Date.now();
+  const el = document.getElementById('processTimer');
+  if (el) el.textContent = 'Waktu proses: 00:00';
+  processTimer = setInterval(function() {
+    if (el) el.textContent = 'Waktu proses: ' + formatElapsed(Date.now() - processStartMs);
+  }, 250);
+}
+
+function stopProcessTimer(serverSeconds) {
+  if (processTimer) {
+    clearInterval(processTimer);
+    processTimer = null;
+  }
+  const el = document.getElementById('processTimer');
+  if (!el) return;
+  if (serverSeconds !== undefined && serverSeconds !== null && Number(serverSeconds) > 0) {
+    el.textContent = 'Waktu proses: ' + Number(serverSeconds).toFixed(1) + ' detik';
+  } else {
+    el.textContent = 'Waktu proses: ' + formatElapsed(Date.now() - processStartMs);
+  }
+}
+
+function setBusy(show) {
+  document.getElementById('loading').style.display = show ? 'block' : 'none';
+  document.getElementById('btnKoreksi').disabled = show;
+  document.getElementById('btnEdit').disabled = show || saved;
+  document.getElementById('btnUlang').disabled = show || saved;
+  document.getElementById('btnSimpan').disabled = show || saved;
+}
+function resetForm() {
+  const kelas = document.getElementById('classSelect').value;
+  currentPayload = null; currentResult = null; editMode = false; saved = false;
+  document.getElementById('studentSelect').value = '';
+  document.getElementById('imageInput').value = '';
+  document.getElementById('manualText').value = '';
+  const preview = document.getElementById('imagePreview');
+  preview.src = '';
+  preview.classList.add('hidden');
+  document.getElementById('resultCard').classList.add('hidden');
+  document.getElementById('resultStatus').classList.add('hidden');
+  document.getElementById('similarityBox').style.display='none';
+  document.getElementById('btnSimpan').disabled = false;
+  setReadOnly(true); clearMessages();
+  if (kelas) loadStudentsByClass(kelas);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function showError(message) { const el=document.getElementById('error'); el.textContent='❌ '+message; el.style.display='block'; }
+function showSuccess(message) { const el=document.getElementById('success'); el.textContent='✅ '+message; el.style.display='block'; }
+function clearMessages() { document.getElementById('error').style.display='none'; document.getElementById('success').style.display='none'; }
+document.querySelectorAll('input[name="savedAiProvider"]').forEach(function(radio){
+  radio.addEventListener('change', function(){
+    setSavedProvider(this.value);
+  });
+});
+document.querySelectorAll('input[name="aiProvider"]').forEach(function(radio){
+  radio.addEventListener('change', function(){
+    document.getElementById('optGemini').classList.toggle('selected', this.value === 'GEMINI');
+    document.getElementById('optCloudflare').classList.toggle('selected', this.value === 'CLOUDFLARE');
+    document.getElementById('optOCRSpaceCloudflare').classList.toggle('selected', this.value === 'OCRSPACE_CLOUDFLARE');
+    document.getElementById('optOCRSpaceOpenAI').classList.toggle('selected', this.value === 'OCRSPACE_OPENAI');
+    document.getElementById('optOpenAI').classList.toggle('selected', this.value === 'OPENAI');
+  });
+});
+
+loadClasses();
+</script>
+</body>
+</html>
